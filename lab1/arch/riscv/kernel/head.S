@@ -3,6 +3,7 @@
     .section .text.entry
     .globl _start
 _start:
+    la sp, boot_stack_top
     jal start_kernel
 
     .section .bss.stack
