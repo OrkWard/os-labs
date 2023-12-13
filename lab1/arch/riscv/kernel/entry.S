@@ -44,7 +44,7 @@ _traps:
     sd s1, 256(sp) # save spec
 
     # 2. call trap_handler
-    csrr a0, sstatus
+    csrr a0, scause
     jal trap_handler
 
     # 3. restore sepc and 32 registers (x2(sp) should be restore last) from stack

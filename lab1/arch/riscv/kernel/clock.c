@@ -5,10 +5,7 @@ unsigned long TIMECLOCK = 10000000;
 
 unsigned long get_cycles() {
   uint64 time;
-  asm volatile("rdtime t0\nmv %[value], t0"
-               : [value] "=r"(time)
-               :
-               : "memory", "t0");
+  asm volatile("rdtime %[value]\n" : [value] "=r"(time) : : "memory", "t0");
   return time;
 }
 
