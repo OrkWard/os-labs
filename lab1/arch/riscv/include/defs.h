@@ -20,3 +20,5 @@
   })
 
 #endif
+
+void clock_set_next_event();

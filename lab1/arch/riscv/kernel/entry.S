@@ -3,7 +3,7 @@
     .globl _traps, context_stack, context_stack_top
 _traps:
     # 1. save 32 registers and sepc to stack
-    csrw sscrach, sp
+    csrw sscratch, sp
     la sp, context_stack
     sd x0, 0(sp)
     sd x1, 8(sp)
@@ -44,7 +44,8 @@ _traps:
     sd s1, 256(sp) # save spec
 
     # 2. call trap_handler
-
+    csrr a0, sstatus
+    jal trap_handler
 
     # 3. restore sepc and 32 registers (x2(sp) should be restore last) from stack
     la sp, context_stack
