@@ -5,11 +5,12 @@
 
 #define csr_read(csr)                                                          \
   ({                                                                           \
-    register uint64 __v;                                                       \
+    uint64 __v;                                                                \
     asm volatile("csrr t0, " #csr "\nmv %[value], t0"                          \
                  : [value] "=r"(__v)                                           \
                  :                                                             \
-                 : "memory", "t0") __v;                                        \
+                 : "memory", "t0");                                            \
+    __v;                                                                       \
   })
 
 #define csr_write(csr, val)                                                    \
