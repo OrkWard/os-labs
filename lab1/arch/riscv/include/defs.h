@@ -6,7 +6,8 @@
 #define csr_read(csr)                                                          \
   ({                                                                           \
     uint64 __v;                                                                \
-    asm volatile("csrr t0, " #csr "\nmv %[value], t0"                          \
+    asm volatile("csrr t0, " #csr "\n"                                         \
+                 "mv %[value], t0"                                             \
                  : [value] "=r"(__v)                                           \
                  :                                                             \
                  : "memory", "t0");                                            \
@@ -16,9 +17,13 @@
 #define csr_write(csr, val)                                                    \
   ({                                                                           \
     uint64 __v = (uint64)(val);                                                \
-    asm volatile("csrw " #csr ", %0" : : "r"(__v) : "memory");                 \
+    asm volatile("mv t0, %0\n"                                                 \
+                 "csrw " #csr ", t0"                                           \
+                 :                                                             \
+                 : "r"(__v)                                                    \
+                 : "memory");                                                  \
   })
 
-#endif
-
 void clock_set_next_event();
+
+#endif
