@@ -12,20 +12,20 @@
 #define PGROUNDDOWN(addr) (addr & (~(PGSIZE - 1)))
 
 #define csr_read(csr)                                                          \
-  ({                                                                           \
-    uint64 __v;                                                                \
-    asm volatile("csrr t0, " #csr "\nmv %[value], t0"                          \
-                 : [value] "=r"(__v)                                           \
-                 :                                                             \
-                 : "memory", "t0");                                            \
-    __v;                                                                       \
-  })
+    ({                                                                         \
+        uint64 __v;                                                            \
+        asm volatile("csrr t0, " #csr "\nmv %[value], t0"                      \
+                     : [value] "=r"(__v)                                       \
+                     :                                                         \
+                     : "memory", "t0");                                        \
+        __v;                                                                   \
+    })
 
 #define csr_write(csr, val)                                                    \
-  ({                                                                           \
-    uint64 __v = (uint64)(val);                                                \
-    asm volatile("csrw " #csr ", %0" : : "r"(__v) : "memory");                 \
-  })
+    ({                                                                         \
+        uint64 __v = (uint64)(val);                                            \
+        asm volatile("csrw " #csr ", %0" : : "r"(__v) : "memory");             \
+    })
 
 void clock_set_next_event();
 

@@ -1,6 +1,6 @@
+#include "mm.h"
 #include "defs.h"
 #include "string.h"
-#include "mm.h"
 
 #include "printk.h"
 
@@ -14,16 +14,17 @@ uint64 kalloc() {
     struct run *r;
 
     r = kmem.freelist;
+
     kmem.freelist = r->next;
-    
+
     memset((void *)r, 0x0, PGSIZE);
-    return (uint64) r;
+    return (uint64)r;
 }
 
 void kfree(uint64 addr) {
     struct run *r;
 
-    // PGSIZE align 
+    // PGSIZE align
     addr = addr & ~(PGSIZE - 1);
 
     memset((void *)addr, 0x0, (uint64)PGSIZE);
@@ -32,7 +33,7 @@ void kfree(uint64 addr) {
     r->next = kmem.freelist;
     kmem.freelist = r;
 
-    return ;
+    return;
 }
 
 void kfreerange(char *start, char *end) {

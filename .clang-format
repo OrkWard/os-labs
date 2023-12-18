@@ -1,0 +1,43 @@
+# Indentation
+IndentWidth: 4
+UseTab: Never
+TabWidth: 4
+
+# Spaces around operators
+SpaceBeforeAssignmentOperators: true
+
+# Spaces in control statements
+SpaceBeforeParens: ControlStatements
+
+# Allow short functions and if statements without braces
+AllowShortIfStatementsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Inline
+
+# Column limit
+ColumnLimit: 80
+
+# Indent case labels
+IndentCaseLabels: true
+
+# Break before binary operators
+BreakBeforeBinaryOperators: All
+
+# Pointer and reference alignment
+PointerAlignment: Right
+
+# Compact brace style
+BraceWrapping:
+  AfterClass: true
+  AfterControlStatement: true
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterObjCDeclaration: true
+  AfterStruct: true
+  AfterUnion: true
+  BeforeCatch: true
+  BeforeElse: true
+  IndentBraces: false
+
+# C++ specific options
+DerivePointerAlignment: true

@@ -1,6 +1,7 @@
 .extern start_kernel
 .extern _traps
 .extern clock_set_next_event
+.extern task_init
 
     .section .text.init
     .globl _start
@@ -18,6 +19,9 @@ _start:
 
     # 设置第一次中断
     jal clock_set_next_event
+    
+    # 初始化进程
+    jal task_init
 
     jal start_kernel # 跳到 start_kernel
 
