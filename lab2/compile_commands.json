@@ -13,105 +13,13 @@
       "-Wl,--gc-sections",
       "-g",
       "-I",
-      "/home/orks/Repos/os-labs/lab1/include",
+      "/home/orks/Repos/os-labs/lab2/include",
       "-I",
-      "/home/orks/Repos/os-labs/lab1/arch/riscv/include",
+      "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
       "-c",
-      "printk.c"
+      "proc.c"
     ],
-    "directory": "/home/orks/Repos/os-labs/lab1/lib",
-    "file": "/home/orks/Repos/os-labs/lab1/lib/printk.c"
-  },
-  {
-    "arguments": [
-      "/usr/bin/riscv64-linux-gnu-gcc",
-      "-march=rv64imafd",
-      "-mabi=lp64",
-      "-mcmodel=medany",
-      "-fno-builtin",
-      "-ffunction-sections",
-      "-fdata-sections",
-      "-nostdinc",
-      "-Wl,--nmagic",
-      "-Wl,--gc-sections",
-      "-g",
-      "-I",
-      "/home/orks/Repos/os-labs/lab1/include",
-      "-I",
-      "/home/orks/Repos/os-labs/lab1/arch/riscv/include",
-      "-c",
-      "main.c"
-    ],
-    "directory": "/home/orks/Repos/os-labs/lab1/init",
-    "file": "/home/orks/Repos/os-labs/lab1/init/main.c"
-  },
-  {
-    "arguments": [
-      "/usr/bin/riscv64-linux-gnu-gcc",
-      "-march=rv64imafd",
-      "-mabi=lp64",
-      "-mcmodel=medany",
-      "-fno-builtin",
-      "-ffunction-sections",
-      "-fdata-sections",
-      "-nostdinc",
-      "-Wl,--nmagic",
-      "-Wl,--gc-sections",
-      "-g",
-      "-I",
-      "/home/orks/Repos/os-labs/lab1/include",
-      "-I",
-      "/home/orks/Repos/os-labs/lab1/arch/riscv/include",
-      "-c",
-      "test.c"
-    ],
-    "directory": "/home/orks/Repos/os-labs/lab1/init",
-    "file": "/home/orks/Repos/os-labs/lab1/init/test.c"
-  },
-  {
-    "arguments": [
-      "/usr/bin/riscv64-linux-gnu-gcc",
-      "-march=rv64imafd",
-      "-mabi=lp64",
-      "-mcmodel=medany",
-      "-fno-builtin",
-      "-ffunction-sections",
-      "-fdata-sections",
-      "-nostdinc",
-      "-Wl,--nmagic",
-      "-Wl,--gc-sections",
-      "-g",
-      "-I",
-      "/home/orks/Repos/os-labs/lab1/include",
-      "-I",
-      "/home/orks/Repos/os-labs/lab1/arch/riscv/include",
-      "-c",
-      "head.S"
-    ],
-    "directory": "/home/orks/Repos/os-labs/lab1/arch/riscv/kernel",
-    "file": "/home/orks/Repos/os-labs/lab1/arch/riscv/kernel/head.S"
-  },
-  {
-    "arguments": [
-      "/usr/bin/riscv64-linux-gnu-gcc",
-      "-march=rv64imafd",
-      "-mabi=lp64",
-      "-mcmodel=medany",
-      "-fno-builtin",
-      "-ffunction-sections",
-      "-fdata-sections",
-      "-nostdinc",
-      "-Wl,--nmagic",
-      "-Wl,--gc-sections",
-      "-g",
-      "-I",
-      "/home/orks/Repos/os-labs/lab1/include",
-      "-I",
-      "/home/orks/Repos/os-labs/lab1/arch/riscv/include",
-      "-c",
-      "sbi.c"
-    ],
-    "directory": "/home/orks/Repos/os-labs/lab1/arch/riscv/kernel",
-    "file": "/home/orks/Repos/os-labs/lab1/arch/riscv/kernel/sbi.c"
+    "directory": "/home/orks/Repos/os-labs/lab2/arch/riscv/kernel",
+    "file": "/home/orks/Repos/os-labs/lab2/arch/riscv/kernel/proc.c"
   }
 ]

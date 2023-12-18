@@ -1,5 +1,5 @@
 C_SRC = $(sort $(wildcard *.c))
-OBJ   = $(sort $(wildcard *.o))
+OBJ = $(patsubst %.c,%.o,$(C_SRC))
 
 all: $(OBJ)
 
