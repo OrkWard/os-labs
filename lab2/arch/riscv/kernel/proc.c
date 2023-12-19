@@ -142,14 +142,26 @@ void do_timer() {
 
 void schedule() {
     int i;
-    int min_task_id = 1;
-    int min_counter = task[1]->counter;
-    for (i = 2; i < NR_TASKS; ++i) {
+    int min_task_id = 0;
+    int min_counter = -1;
+    for (i = 1; i < NR_TASKS; ++i) {
         if (task[i]->counter < min_counter) {
             min_counter = task[i]->counter;
             min_task_id = i;
         }
     }
 
-    switch_to(task[min_task_id]);
+    // min_task_id 为 0（即没有改变）时调度失败，此时所有 counter 均为 0
+    if (min_task_id) {
+        switch_to(task[min_task_id]);
+    } else {
+        for (i = 1; i < NR_TASKS; ++i) {
+#ifdef SJF
+            task[i]->counter = rand();
+#else
+            task[i]->counter = task[i]->priority;
+#endif
+        }
+        schedule();
+    }
 }

@@ -16,6 +16,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "-DSJF",
       "-c",
       "printk.c"
     ],
@@ -39,6 +40,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "-DSJF",
       "-c",
       "rand.c"
     ],
@@ -62,6 +64,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "-DSJF",
       "-c",
       "string.c"
     ],
@@ -85,6 +88,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "-DSJF",
       "-c",
       "schedule_null.c"
     ],
@@ -108,6 +112,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "-DSJF",
       "-c",
       "main.c"
     ],
@@ -131,6 +136,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "-DSJF",
       "-c",
       "test.c"
     ],
@@ -154,6 +160,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "-DSJF",
       "-c",
       "entry.S"
     ],
@@ -177,6 +184,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "-DSJF",
       "-c",
       "head.S"
     ],
@@ -200,6 +208,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "-DSJF",
       "-c",
       "clock.c"
     ],
@@ -223,6 +232,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "-DSJF",
       "-c",
       "mm.c"
     ],
@@ -246,6 +256,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "-DSJF",
       "-c",
       "proc.c"
     ],
@@ -269,6 +280,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "-DSJF",
       "-c",
       "sbi.c"
     ],
@@ -292,6 +304,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "-DSJF",
       "-c",
       "trap.c"
     ],
