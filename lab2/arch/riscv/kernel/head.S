@@ -16,12 +16,13 @@ _start:
 
     li t0, 1 << 1
     csrw sstatus, t0 # 启用中断
+    
+    # 初始化进程
+    # TODO: exchange
+    jal task_init
 
     # 设置第一次中断
     jal clock_set_next_event
-    
-    # 初始化进程
-    jal task_init
 
     jal start_kernel # 跳到 start_kernel
 

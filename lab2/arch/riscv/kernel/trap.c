@@ -3,7 +3,8 @@
 #include "proc.h"
 
 void trap_handler(unsigned long scause, unsigned long sepc) {
-    csr_write(sstatus, 0);
+    // 防止在调度时触发中断，暂时关闭中断
+    // csr_write(sstatus, 0);
 
     if (scause >> (64 - 1) & 1) {
         // is interrupt
@@ -16,5 +17,5 @@ void trap_handler(unsigned long scause, unsigned long sepc) {
         }
     }
 
-    csr_write(sstatus, 0x2);
+    // csr_write(sstatus, 0x2);
 }

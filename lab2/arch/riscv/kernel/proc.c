@@ -71,18 +71,21 @@ extern uint64
 
 void task_init() {
     test_init(NR_TASKS);
+
+    // 初始化物理内存
     mm_init();
 
     // 初始化 idle 进程
     uint64 page_bottom = kalloc();
     idle = (void *)page_bottom;
 
-    idle->thread.sp = page_bottom + PGSIZE;
     idle->state = TASK_RUNNING;
     idle->counter = 0;
     idle->priority = 0;
     idle->pid = 0;
+    // idle 不参与调度，thread 不用初始化
 
+    // 设置当前进程为 idle
     current = idle;
     task[0] = idle;
 
@@ -94,6 +97,7 @@ void task_init() {
         task[i]->state = TASK_RUNNING;
         task[i]->counter = task_test_counter[i];
         task[i]->priority = task_test_priority[i];
+        // ra 初始化为 __dummy 地址
         task[i]->thread.ra = (uint64)&__dummy;
         task[i]->thread.sp = page_bottom + PGSIZE;
     }
@@ -101,7 +105,6 @@ void task_init() {
     printk("...proc_init done!\n");
 }
 
-// arch/riscv/kernel/proc.c
 void dummy() {
     schedule_test();
     uint64 MOD = 1000000007;
@@ -144,6 +147,7 @@ void schedule() {
     int i;
     int min_task_id = 0;
     int min_counter = -1;
+    // skip idle
     for (i = 1; i < NR_TASKS; ++i) {
         if (task[i]->counter < min_counter) {
             min_counter = task[i]->counter;
@@ -157,8 +161,12 @@ void schedule() {
     } else {
         for (i = 1; i < NR_TASKS; ++i) {
 #ifdef SJF
+            // 随机赋值
             task[i]->counter = rand();
 #else
+            // 优先级赋值
+            // linux 0.11 的实现为同时考虑 counter 和 prioriy
+            // 由于 couter 此处必为零，因此不必考虑
             task[i]->counter = task[i]->priority;
 #endif
         }
