@@ -94,6 +94,7 @@ void task_init() {
     for (i = 1; i < NR_TASKS; ++i) {
         page_bottom = kalloc();
         task[i] = (void *)page_bottom;
+        task[i]->pid = i;
         task[i]->state = TASK_RUNNING;
         task[i]->counter = task_test_counter[i];
         task[i]->priority = task_test_priority[i];
@@ -128,7 +129,9 @@ void dummy() {
 
 void switch_to(struct task_struct *next) {
     if (next != current) {
-        __switch_to(current, next);
+        struct task_struct *prev = current;
+        current = next;
+        __switch_to(prev, next);
     }
 }
 
@@ -136,7 +139,8 @@ void do_timer() {
     if (current == idle) {
         schedule();
     } else {
-        if (--current->counter) {
+        if (current->counter) {
+            --current->counter;
             return;
         }
         schedule();
@@ -145,17 +149,17 @@ void do_timer() {
 
 void schedule() {
     int i;
-    int min_task_id = 0;
-    int min_counter = -1;
     // skip idle
+    int min_task_id = 0;
+    int min_counter = MAX_INT;
     for (i = 1; i < NR_TASKS; ++i) {
-        if (task[i]->counter < min_counter) {
+        if (task[i]->counter && task[i]->counter < min_counter) {
             min_counter = task[i]->counter;
             min_task_id = i;
         }
     }
 
-    // min_task_id 为 0（即没有改变）时调度失败，此时所有 counter 均为 0
+    // min_counter 为 0 时调度失败，此时所有 counter 均为 0
     if (min_task_id) {
         switch_to(task[min_task_id]);
     } else {
