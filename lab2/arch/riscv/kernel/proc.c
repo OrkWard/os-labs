@@ -4,10 +4,58 @@
 #include "printk.h"
 #include "rand.h"
 #include "test.h"
-
-// arch/riscv/kernel/proc.c
+#include "types.h"
 
 extern void __dummy();
+extern void __switch_to(struct task_struct *prev, struct task_struct *next);
+// void __switch_to(struct task_struct *prev, struct task_struct *next) {
+//     // save context
+//     asm volatile("mv %0, sp\n"
+//                  "mv %1, ra\n"
+//                  "mv %2, s0\n"
+//                  "mv %3, s1\n"
+//                  "mv %4, s2\n"
+//                  "mv %5, s3\n"
+//                  "mv %6, s4\n"
+//                  "mv %7, s5\n"
+//                  "mv %8, s6\n"
+//                  "mv %9, s7\n"
+//                  "mv %10, s8\n"
+//                  "mv %11, s9\n"
+//                  "mv %12, s10\n"
+//                  "mv %13, s11\n"
+//                  : "=r"(prev->thread.sp), "=r"(prev->thread.ra),
+//                    "=r"(prev->thread.s[0]), "=r"(prev->thread.s[1]),
+//                    "=r"(prev->thread.s[2]), "=r"(prev->thread.s[3]),
+//                    "=r"(prev->thread.s[4]), "=r"(prev->thread.s[5]),
+//                    "=r"(prev->thread.s[6]), "=r"(prev->thread.s[7]),
+//                    "=r"(prev->thread.s[8]), "=r"(prev->thread.s[9]),
+//                    "=r"(prev->thread.s[10]), "=r"(prev->thread.s[11]));
+
+//     // restore context
+//     asm volatile("mv sp, %0\n"
+//                  "mv ra, %1\n"
+//                  "mv s0, %2\n"
+//                  "mv s1, %3\n"
+//                  "mv s2, %4\n"
+//                  "mv s3, %5\n"
+//                  "mv s4, %6\n"
+//                  "mv s5, %7\n"
+//                  "mv s6, %8\n"
+//                  "mv s7, %9\n"
+//                  "mv s8, %10\n"
+//                  "mv s9, %11\n"
+//                  "mv s10, %12\n"
+//                  "mv s11, %13\n"
+//                  :
+//                  : "r"(next->thread.sp), "r"(next->thread.ra),
+//                    "r"(next->thread.s[0]), "r"(next->thread.s[1]),
+//                    "r"(next->thread.s[2]), "r"(next->thread.s[3]),
+//                    "r"(next->thread.s[4]), "r"(next->thread.s[5]),
+//                    "r"(next->thread.s[6]), "r"(next->thread.s[7]),
+//                    "r"(next->thread.s[8]), "r"(next->thread.s[9]),
+//                    "r"(next->thread.s[10]), "r"(next->thread.s[11]));
+// }
 
 struct task_struct *idle;           // idle process
 struct task_struct *current;        // 指向当前运行线程的 `task_struct`
@@ -23,27 +71,32 @@ extern uint64
 
 void task_init() {
     test_init(NR_TASKS);
-    // 1. 调用 kalloc() 为 idle 分配一个物理页
-    // 2. 设置 state 为 TASK_RUNNING;
-    // 3. 由于 idle 不参与调度 可以将其 counter / priority 设置为 0
-    // 4. 设置 idle 的 pid 为 0
-    // 5. 将 current 和 task[0] 指向 idle
     mm_init();
-    kalloc();
 
-    /* YOUR CODE HERE */
+    // 初始化 idle 进程
+    uint64 page_bottom = kalloc();
+    idle = (void *)page_bottom;
 
-    // 1. 参考 idle 的设置, 为 task[1] ~ task[NR_TASKS - 1] 进行初始化
-    // 2. 其中每个线程的 state 为 TASK_RUNNING,
-    // 此外，为了单元测试的需要，counter 和 priority 进行如下赋值：
-    //      task[i].counter  = task_test_counter[i];
-    //      task[i].priority = task_test_priority[i];
-    // 3. 为 task[1] ~ task[NR_TASKS - 1] 设置 `thread_struct` 中的 `ra` 和
-    // `sp`,
-    // 4. 其中 `ra` 设置为 __dummy （见 4.3.2）的地址,  `sp` 设置为
-    // 该线程申请的物理页的高地址
+    idle->thread.sp = page_bottom + PGSIZE;
+    idle->state = TASK_RUNNING;
+    idle->counter = 0;
+    idle->priority = 0;
+    idle->pid = 0;
 
-    /* YOUR CODE HERE */
+    current = idle;
+    task[0] = idle;
+
+    // 初始化其他线程
+    int i;
+    for (i = 1; i < NR_TASKS; ++i) {
+        page_bottom = kalloc();
+        task[i] = (void *)page_bottom;
+        task[i]->state = TASK_RUNNING;
+        task[i]->counter = task_test_counter[i];
+        task[i]->priority = task_test_priority[i];
+        task[i]->thread.ra = (uint64)&__dummy;
+        task[i]->thread.sp = page_bottom + PGSIZE;
+    }
 
     printk("...proc_init done!\n");
 }
@@ -68,4 +121,35 @@ void dummy() {
                    current->pid, auto_inc_local_var);
         }
     }
+}
+
+void switch_to(struct task_struct *next) {
+    if (next != current) {
+        __switch_to(current, next);
+    }
+}
+
+void do_timer() {
+    if (current == idle) {
+        schedule();
+    } else {
+        if (--current->counter) {
+            return;
+        }
+        schedule();
+    }
+}
+
+void schedule() {
+    int i;
+    int min_task_id = 1;
+    int min_counter = task[1]->counter;
+    for (i = 2; i < NR_TASKS; ++i) {
+        if (task[i]->counter < min_counter) {
+            min_counter = task[i]->counter;
+            min_task_id = i;
+        }
+    }
+
+    switch_to(task[min_task_id]);
 }

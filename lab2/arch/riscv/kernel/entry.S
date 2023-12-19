@@ -90,6 +90,53 @@ _traps:
     # 4. return from trap
     sret
 
+    # return to function dummy
+    .extern dummy
+    .globl __dummy
+__dummy:
+    la s0, dummy
+    csrw sepc, s0
+
+    sret
+
+    # process switch
+    .globl __switch_to
+__switch_to:
+    # save state to prev process
+    # a0 = prev, a1 = next
+    sd ra, 48(a0)
+    sd sp, 56(a0)
+    sd s0, 64(a0)
+    sd s1, 72(a0)
+    sd s2, 80(a0)
+    sd s3, 88(a0)
+    sd s4, 96(a0)
+    sd s5, 104(a0)
+    sd s6, 112(a0)
+    sd s7, 120(a0)
+    sd s8, 128(a0)
+    sd s9, 136(a0)
+    sd s10, 144(a0)
+    sd s11, 152(a0)
+
+    # restore state from next process
+    sw ra, 48(a1)
+    sw sp, 56(a1)
+    sw s0, 64(a1)
+    sw s1, 72(a1)
+    sw s2, 80(a1)
+    sw s3, 88(a1)
+    sw s4, 96(a1)
+    sw s5, 104(a1)
+    sw s6, 112(a1)
+    sw s7, 120(a1)
+    sw s8, 128(a1)
+    sw s9, 136(a1)
+    sw s10, 144(a1)
+    sw s11, 152(a1)
+
+    ret
+
     .section .bss.context
 context_stack:
     .space 8 * 36
