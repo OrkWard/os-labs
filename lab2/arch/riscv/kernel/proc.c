@@ -128,7 +128,7 @@ void schedule() {
     int max_task_id = 0;
     int max_counter = -1;
     for (i = 1; i < NR_TASKS; ++i) {
-        if (task[i]->counter && task[i]->counter > max_counter) {
+        if (task[i]->counter && (int)(task[i]->counter) >= max_counter) {
             max_counter = task[i]->counter;
             max_task_id = i;
         }
