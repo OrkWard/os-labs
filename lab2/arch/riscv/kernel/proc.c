@@ -167,6 +167,7 @@ void schedule() {
 #ifdef SJF
             // 随机赋值
             task[i]->counter = rand();
+            printk("counter: %d\n", task[i]->counter);
 #else
             // 优先级赋值
             // linux 0.11 的实现为同时考虑 counter 和 prioriy

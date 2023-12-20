@@ -12,7 +12,7 @@
       "target": ":1234",
       "cwd": "${workspaceRoot}",
       "valuesFormatting": "parseText",
-      "debugger_args": ["lab1/vmlinux"],
+      "debugger_args": ["lab2/vmlinux"],
       "gdbpath": "gdb-multiarch",
       "autorun": ["b start_kernel"]
     }
