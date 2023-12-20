@@ -1,10 +1,9 @@
     .section .text.entry
     .align 2
-    .globl _traps, context_stack, context_stack_top
+    .globl _traps
 _traps:
     # 1. save 32 registers and sepc to stack
-    csrw sscratch, sp
-    la sp, context_stack
+    addi sp, sp, -512
     sd x0, 0(sp)
     sd x1, 8(sp)
     # don't save sp here
@@ -37,20 +36,18 @@ _traps:
     sd x29, 232(sp)
     sd x30, 240(sp)
     sd x31, 248(sp)
-    
-    csrrw s0, sscratch, x0
-    csrr s1, sepc
-    sd s0, 16(sp) # save sp
-    sd s1, 256(sp) # save spec
+
+    csrr t0, sepc
+    sd t0, 256(sp) # save spec
 
     # 2. call trap_handler
     csrr a0, scause
+    mv a1, t0 # sepc
     jal trap_handler
 
     # 3. restore sepc and 32 registers (x2(sp) should be restore last) from stack
-    la sp, context_stack
-    ld s0, 256(sp)
-    csrw sepc, s0 # restore sepc
+    ld t0, 256(sp)
+    csrw sepc, t0 # restore sepc
 
     ld x0, 0(sp)
     ld x1, 8(sp)
@@ -85,13 +82,7 @@ _traps:
     ld x30, 240(sp)
     ld x31, 248(sp)
 
-    ld sp, 16(sp) # restore sp
+    addi sp, sp, 512
 
     # 4. return from trap
     sret
-
-    .section .bss.context
-context_stack:
-    .space 8 * 36
-    
-context_stack_top:
