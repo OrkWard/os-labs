@@ -8,54 +8,6 @@
 
 extern void __dummy();
 extern void __switch_to(struct task_struct *prev, struct task_struct *next);
-// void __switch_to(struct task_struct *prev, struct task_struct *next) {
-//     // save context
-//     asm volatile("mv %0, sp\n"
-//                  "mv %1, ra\n"
-//                  "mv %2, s0\n"
-//                  "mv %3, s1\n"
-//                  "mv %4, s2\n"
-//                  "mv %5, s3\n"
-//                  "mv %6, s4\n"
-//                  "mv %7, s5\n"
-//                  "mv %8, s6\n"
-//                  "mv %9, s7\n"
-//                  "mv %10, s8\n"
-//                  "mv %11, s9\n"
-//                  "mv %12, s10\n"
-//                  "mv %13, s11\n"
-//                  : "=r"(prev->thread.sp), "=r"(prev->thread.ra),
-//                    "=r"(prev->thread.s[0]), "=r"(prev->thread.s[1]),
-//                    "=r"(prev->thread.s[2]), "=r"(prev->thread.s[3]),
-//                    "=r"(prev->thread.s[4]), "=r"(prev->thread.s[5]),
-//                    "=r"(prev->thread.s[6]), "=r"(prev->thread.s[7]),
-//                    "=r"(prev->thread.s[8]), "=r"(prev->thread.s[9]),
-//                    "=r"(prev->thread.s[10]), "=r"(prev->thread.s[11]));
-
-//     // restore context
-//     asm volatile("mv sp, %0\n"
-//                  "mv ra, %1\n"
-//                  "mv s0, %2\n"
-//                  "mv s1, %3\n"
-//                  "mv s2, %4\n"
-//                  "mv s3, %5\n"
-//                  "mv s4, %6\n"
-//                  "mv s5, %7\n"
-//                  "mv s6, %8\n"
-//                  "mv s7, %9\n"
-//                  "mv s8, %10\n"
-//                  "mv s9, %11\n"
-//                  "mv s10, %12\n"
-//                  "mv s11, %13\n"
-//                  :
-//                  : "r"(next->thread.sp), "r"(next->thread.ra),
-//                    "r"(next->thread.s[0]), "r"(next->thread.s[1]),
-//                    "r"(next->thread.s[2]), "r"(next->thread.s[3]),
-//                    "r"(next->thread.s[4]), "r"(next->thread.s[5]),
-//                    "r"(next->thread.s[6]), "r"(next->thread.s[7]),
-//                    "r"(next->thread.s[8]), "r"(next->thread.s[9]),
-//                    "r"(next->thread.s[10]), "r"(next->thread.s[11]));
-// }
 
 struct task_struct *idle;           // idle process
 struct task_struct *current;        // 指向当前运行线程的 `task_struct`
@@ -129,6 +81,8 @@ void dummy() {
 
 void switch_to(struct task_struct *next) {
     if (next != current) {
+        --next->counter;
+
         struct task_struct *prev = current;
         current = next;
         __switch_to(prev, next);
@@ -149,6 +103,7 @@ void do_timer() {
 
 void schedule() {
     int i;
+#ifdef SJF
     // skip idle
     int min_task_id = 0;
     int min_counter = MAX_INT;
@@ -164,17 +119,32 @@ void schedule() {
         switch_to(task[min_task_id]);
     } else {
         for (i = 1; i < NR_TASKS; ++i) {
-#ifdef SJF
             // 随机赋值
             task[i]->counter = rand();
-            printk("counter: %d\n", task[i]->counter);
+        }
+        schedule();
+    }
 #else
+    int max_task_id = 0;
+    int max_counter = -1;
+    for (i = 1; i < NR_TASKS; ++i) {
+        if (task[i]->counter && task[i]->counter > max_counter) {
+            max_counter = task[i]->counter;
+            max_task_id = i;
+        }
+    }
+
+    // min_counter 为 0 时调度失败，此时所有 counter 均为 0
+    if (max_task_id) {
+        switch_to(task[max_task_id]);
+    } else {
+        for (i = 1; i < NR_TASKS; ++i) {
             // 优先级赋值
             // linux 0.11 的实现为同时考虑 counter 和 prioriy
             // 由于 couter 此处必为零，因此不必考虑
             task[i]->counter = task[i]->priority;
-#endif
         }
         schedule();
     }
+#endif
 }

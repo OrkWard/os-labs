@@ -16,7 +16,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
-      "-DSJF",
+      "-DPRIORITY",
       "-c",
       "printk.c"
     ],
@@ -40,7 +40,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
-      "-DSJF",
+      "-DPRIORITY",
       "-c",
       "rand.c"
     ],
@@ -64,7 +64,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
-      "-DSJF",
+      "-DPRIORITY",
       "-c",
       "string.c"
     ],
@@ -88,7 +88,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
-      "-DSJF",
+      "-DPRIORITY",
       "-c",
       "schedule_null.c"
     ],
@@ -112,7 +112,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
-      "-DSJF",
+      "-DPRIORITY",
       "-c",
       "main.c"
     ],
@@ -136,7 +136,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
-      "-DSJF",
+      "-DPRIORITY",
       "-c",
       "test.c"
     ],
@@ -160,7 +160,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
-      "-DSJF",
+      "-DPRIORITY",
       "-c",
       "entry.S"
     ],
@@ -184,7 +184,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
-      "-DSJF",
+      "-DPRIORITY",
       "-c",
       "head.S"
     ],
@@ -208,7 +208,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
-      "-DSJF",
+      "-DPRIORITY",
       "-c",
       "clock.c"
     ],
@@ -232,7 +232,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
-      "-DSJF",
+      "-DPRIORITY",
       "-c",
       "mm.c"
     ],
@@ -256,7 +256,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
-      "-DSJF",
+      "-DPRIORITY",
       "-c",
       "proc.c"
     ],
@@ -280,7 +280,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
-      "-DSJF",
+      "-DPRIORITY",
       "-c",
       "sbi.c"
     ],
@@ -304,7 +304,7 @@
       "/home/orks/Repos/os-labs/lab2/include",
       "-I",
       "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
-      "-DSJF",
+      "-DPRIORITY",
       "-c",
       "trap.c"
     ],

@@ -18,7 +18,6 @@ _start:
     csrw sstatus, t0 # 启用中断
     
     # 初始化进程
-    # TODO: exchange
     jal task_init
 
     # 设置第一次中断
