@@ -13,15 +13,15 @@
       "-Wl,--gc-sections",
       "-g",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/include",
+      "/home/orks/Repos/os-labs/lab3/include",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "/home/orks/Repos/os-labs/lab3/arch/riscv/include",
       "-DPRIORITY",
       "-c",
       "printk.c"
     ],
-    "directory": "/home/orks/Repos/os-labs/lab2/lib",
-    "file": "/home/orks/Repos/os-labs/lab2/lib/printk.c"
+    "directory": "/home/orks/Repos/os-labs/lab3/lib",
+    "file": "/home/orks/Repos/os-labs/lab3/lib/printk.c"
   },
   {
     "arguments": [
@@ -37,15 +37,15 @@
       "-Wl,--gc-sections",
       "-g",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/include",
+      "/home/orks/Repos/os-labs/lab3/include",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "/home/orks/Repos/os-labs/lab3/arch/riscv/include",
       "-DPRIORITY",
       "-c",
       "rand.c"
     ],
-    "directory": "/home/orks/Repos/os-labs/lab2/lib",
-    "file": "/home/orks/Repos/os-labs/lab2/lib/rand.c"
+    "directory": "/home/orks/Repos/os-labs/lab3/lib",
+    "file": "/home/orks/Repos/os-labs/lab3/lib/rand.c"
   },
   {
     "arguments": [
@@ -61,15 +61,15 @@
       "-Wl,--gc-sections",
       "-g",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/include",
+      "/home/orks/Repos/os-labs/lab3/include",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "/home/orks/Repos/os-labs/lab3/arch/riscv/include",
       "-DPRIORITY",
       "-c",
       "string.c"
     ],
-    "directory": "/home/orks/Repos/os-labs/lab2/lib",
-    "file": "/home/orks/Repos/os-labs/lab2/lib/string.c"
+    "directory": "/home/orks/Repos/os-labs/lab3/lib",
+    "file": "/home/orks/Repos/os-labs/lab3/lib/string.c"
   },
   {
     "arguments": [
@@ -85,15 +85,15 @@
       "-Wl,--gc-sections",
       "-g",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/include",
+      "/home/orks/Repos/os-labs/lab3/include",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "/home/orks/Repos/os-labs/lab3/arch/riscv/include",
       "-DPRIORITY",
       "-c",
       "schedule_null.c"
     ],
-    "directory": "/home/orks/Repos/os-labs/lab2/test",
-    "file": "/home/orks/Repos/os-labs/lab2/test/schedule_null.c"
+    "directory": "/home/orks/Repos/os-labs/lab3/test",
+    "file": "/home/orks/Repos/os-labs/lab3/test/schedule_null.c"
   },
   {
     "arguments": [
@@ -109,15 +109,15 @@
       "-Wl,--gc-sections",
       "-g",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/include",
+      "/home/orks/Repos/os-labs/lab3/include",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "/home/orks/Repos/os-labs/lab3/arch/riscv/include",
       "-DPRIORITY",
       "-c",
       "main.c"
     ],
-    "directory": "/home/orks/Repos/os-labs/lab2/init",
-    "file": "/home/orks/Repos/os-labs/lab2/init/main.c"
+    "directory": "/home/orks/Repos/os-labs/lab3/init",
+    "file": "/home/orks/Repos/os-labs/lab3/init/main.c"
   },
   {
     "arguments": [
@@ -133,15 +133,15 @@
       "-Wl,--gc-sections",
       "-g",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/include",
+      "/home/orks/Repos/os-labs/lab3/include",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "/home/orks/Repos/os-labs/lab3/arch/riscv/include",
       "-DPRIORITY",
       "-c",
       "test.c"
     ],
-    "directory": "/home/orks/Repos/os-labs/lab2/init",
-    "file": "/home/orks/Repos/os-labs/lab2/init/test.c"
+    "directory": "/home/orks/Repos/os-labs/lab3/init",
+    "file": "/home/orks/Repos/os-labs/lab3/init/test.c"
   },
   {
     "arguments": [
@@ -157,15 +157,15 @@
       "-Wl,--gc-sections",
       "-g",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/include",
+      "/home/orks/Repos/os-labs/lab3/include",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "/home/orks/Repos/os-labs/lab3/arch/riscv/include",
       "-DPRIORITY",
       "-c",
       "entry.S"
     ],
-    "directory": "/home/orks/Repos/os-labs/lab2/arch/riscv/kernel",
-    "file": "/home/orks/Repos/os-labs/lab2/arch/riscv/kernel/entry.S"
+    "directory": "/home/orks/Repos/os-labs/lab3/arch/riscv/kernel",
+    "file": "/home/orks/Repos/os-labs/lab3/arch/riscv/kernel/entry.S"
   },
   {
     "arguments": [
@@ -181,15 +181,15 @@
       "-Wl,--gc-sections",
       "-g",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/include",
+      "/home/orks/Repos/os-labs/lab3/include",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "/home/orks/Repos/os-labs/lab3/arch/riscv/include",
       "-DPRIORITY",
       "-c",
       "head.S"
     ],
-    "directory": "/home/orks/Repos/os-labs/lab2/arch/riscv/kernel",
-    "file": "/home/orks/Repos/os-labs/lab2/arch/riscv/kernel/head.S"
+    "directory": "/home/orks/Repos/os-labs/lab3/arch/riscv/kernel",
+    "file": "/home/orks/Repos/os-labs/lab3/arch/riscv/kernel/head.S"
   },
   {
     "arguments": [
@@ -205,15 +205,15 @@
       "-Wl,--gc-sections",
       "-g",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/include",
+      "/home/orks/Repos/os-labs/lab3/include",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "/home/orks/Repos/os-labs/lab3/arch/riscv/include",
       "-DPRIORITY",
       "-c",
       "clock.c"
     ],
-    "directory": "/home/orks/Repos/os-labs/lab2/arch/riscv/kernel",
-    "file": "/home/orks/Repos/os-labs/lab2/arch/riscv/kernel/clock.c"
+    "directory": "/home/orks/Repos/os-labs/lab3/arch/riscv/kernel",
+    "file": "/home/orks/Repos/os-labs/lab3/arch/riscv/kernel/clock.c"
   },
   {
     "arguments": [
@@ -229,15 +229,15 @@
       "-Wl,--gc-sections",
       "-g",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/include",
+      "/home/orks/Repos/os-labs/lab3/include",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "/home/orks/Repos/os-labs/lab3/arch/riscv/include",
       "-DPRIORITY",
       "-c",
       "mm.c"
     ],
-    "directory": "/home/orks/Repos/os-labs/lab2/arch/riscv/kernel",
-    "file": "/home/orks/Repos/os-labs/lab2/arch/riscv/kernel/mm.c"
+    "directory": "/home/orks/Repos/os-labs/lab3/arch/riscv/kernel",
+    "file": "/home/orks/Repos/os-labs/lab3/arch/riscv/kernel/mm.c"
   },
   {
     "arguments": [
@@ -253,15 +253,15 @@
       "-Wl,--gc-sections",
       "-g",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/include",
+      "/home/orks/Repos/os-labs/lab3/include",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "/home/orks/Repos/os-labs/lab3/arch/riscv/include",
       "-DPRIORITY",
       "-c",
       "proc.c"
     ],
-    "directory": "/home/orks/Repos/os-labs/lab2/arch/riscv/kernel",
-    "file": "/home/orks/Repos/os-labs/lab2/arch/riscv/kernel/proc.c"
+    "directory": "/home/orks/Repos/os-labs/lab3/arch/riscv/kernel",
+    "file": "/home/orks/Repos/os-labs/lab3/arch/riscv/kernel/proc.c"
   },
   {
     "arguments": [
@@ -277,15 +277,15 @@
       "-Wl,--gc-sections",
       "-g",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/include",
+      "/home/orks/Repos/os-labs/lab3/include",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "/home/orks/Repos/os-labs/lab3/arch/riscv/include",
       "-DPRIORITY",
       "-c",
       "sbi.c"
     ],
-    "directory": "/home/orks/Repos/os-labs/lab2/arch/riscv/kernel",
-    "file": "/home/orks/Repos/os-labs/lab2/arch/riscv/kernel/sbi.c"
+    "directory": "/home/orks/Repos/os-labs/lab3/arch/riscv/kernel",
+    "file": "/home/orks/Repos/os-labs/lab3/arch/riscv/kernel/sbi.c"
   },
   {
     "arguments": [
@@ -301,14 +301,14 @@
       "-Wl,--gc-sections",
       "-g",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/include",
+      "/home/orks/Repos/os-labs/lab3/include",
       "-I",
-      "/home/orks/Repos/os-labs/lab2/arch/riscv/include",
+      "/home/orks/Repos/os-labs/lab3/arch/riscv/include",
       "-DPRIORITY",
       "-c",
       "trap.c"
     ],
-    "directory": "/home/orks/Repos/os-labs/lab2/arch/riscv/kernel",
-    "file": "/home/orks/Repos/os-labs/lab2/arch/riscv/kernel/trap.c"
+    "directory": "/home/orks/Repos/os-labs/lab3/arch/riscv/kernel",
+    "file": "/home/orks/Repos/os-labs/lab3/arch/riscv/kernel/trap.c"
   }
 ]
