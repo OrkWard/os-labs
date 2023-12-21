@@ -1,0 +1,12 @@
+break switch_to
+disable $bpnum
+break *0x80200750
+disable $bpnum
+break dummy
+disable $bpnum
+break do_timer
+
+dashboard
+dashboard -layout stack assembly registers source breakpoints variables expressions !history !memory !threads
+
+target remote :1234
