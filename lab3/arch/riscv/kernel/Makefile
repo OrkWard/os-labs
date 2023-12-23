@@ -6,10 +6,10 @@ all:$(OBJ)
 
 
 %.o:%.S
-	${GCC}  ${CFLAG} -c $<
+	${GCC}  ${CFLAG} -march=rv64g_zifencei -c $<
 
 %.o:%.c
-	${GCC}  ${CFLAG} -c $<
+	${GCC}  ${CFLAG} -march=rv64g_zifencei -c $<
 
 clean:
 	$(shell rm *.o 2>/dev/null)
