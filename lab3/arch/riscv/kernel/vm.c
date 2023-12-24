@@ -5,7 +5,6 @@
 #include "printk.h"
 #include "string.h"
 #include "types.h"
-#include <stddef.h>
 
 extern uint64 _stext;
 extern uint64 _etext;
@@ -44,20 +43,22 @@ void setup_vm_final(void) {
     // No OpenSBI mapping required
 
     // mapping kernel text X|-|R|V
-    printk("%x\n%x\n", _stext, &_stext);
     // va 为 _stext，减去偏移即得到 pa
-    create_mapping(swapper_pg_dir, _stext, _stext - PA2VA_OFFSET,
-                   _etext - _stext, 0b1011);
+    create_mapping(swapper_pg_dir, (uint64)&_stext,
+                   (uint64)&_stext - PA2VA_OFFSET,
+                   (uint64)&_etext - (uint64)&_stext, 0b1011);
 
     // mapping kernel rodata -|-|R|V
     // va 为 _srodata，减去偏移即得到 pa
-    create_mapping(swapper_pg_dir, _srodata, _srodata - PA2VA_OFFSET,
-                   _erodata - _srodata, 0b11);
+    create_mapping(swapper_pg_dir, (uint64)&_srodata,
+                   (uint64)&_srodata - PA2VA_OFFSET,
+                   (uint64)&_erodata - (uint64)&_srodata, 0b11);
 
     // mapping other memory -|W|R|V
     // va 从 _sdata 开始，减去偏移得到 pa，范围到整个内存结束
-    create_mapping(swapper_pg_dir, _sdata, _sdata - PA2VA_OFFSET,
-                   VM_START + PHY_SIZE - _sdata, 0b111);
+    create_mapping(swapper_pg_dir, (uint64)&_sdata,
+                   (uint64)&_sdata - PA2VA_OFFSET,
+                   VM_START + PHY_SIZE - (uint64)&_sdata, 0b111);
 
     // set satp with swapper_pg_dir
     asm volatile("csrw satp, %[table]" ::[table] "r"(swapper_pg_dir));
@@ -96,7 +97,7 @@ void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz,
 
         // page table layer 1
         uint64 *pgtbl_1;
-        if (pgtbl[vpn_2] ^ 1) {
+        if (!(pgtbl[vpn_2] & 1)) {
             pgtbl_1 = (uint64 *)kalloc();
             // set to valid
             // << 10 >> 12 => >> 2
@@ -108,16 +109,16 @@ void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz,
 
         // page table layer 0
         uint64 *pgtbl_0;
-        if (pgtbl_1[vpn_1] ^ 1) {
+        if (!(pgtbl_1[vpn_1] & 1)) {
             pgtbl_0 = (uint64 *)kalloc();
             // set to valid
             pgtbl_1[vpn_1] = (uint64)pgtbl_0 >> 2 | 1;
         } else {
-            pgtbl_0 = (uint64 *)((pgtbl[vpn_1] & 0x3ffffffffffffc00) << 2);
+            pgtbl_0 = (uint64 *)((pgtbl_1[vpn_1] & 0x3ffffffffffffc00) << 2);
         }
 
         // physical address
-        if (pgtbl_0[vpn_0] ^ 1) {
+        if (!(pgtbl_0[vpn_0] & 1)) {
             pgtbl_0[vpn_0] = pa >> 2 | perm;
         }
 

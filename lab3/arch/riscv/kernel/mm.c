@@ -38,9 +38,12 @@ void kfree(uint64 addr) {
 
 void kfreerange(char *start, char *end) {
     char *addr = (char *)PGROUNDUP((uint64)start);
+    int i = 0;
     for (; (uint64)(addr) + PGSIZE <= (uint64)end; addr += PGSIZE) {
+        i += 1;
         kfree((uint64)addr);
     }
+    printk("We have free page of %d\n", i);
 }
 
 void mm_init(void) {

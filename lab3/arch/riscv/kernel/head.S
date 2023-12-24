@@ -20,7 +20,7 @@ _start:
     jal mm_init # 初始化物理内存
     
     # 初始化页表
-    jal set_vm_final
+    jal setup_vm_final
     
     # 初始化进程
     jal task_init

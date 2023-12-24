@@ -1,7 +1,8 @@
 dashboard
-dashboard -layout stack assembly registers source breakpoints variables expressions !history !memory !threads
+dashboard -layout stack assembly registers source breakpoints variables expressions memory !history !threads
 
 target remote :1234
 
-break _start
-break *0x80200000
+break setup_vm_final
+break /home/orks/Repos/os-labs/lab3/arch/riscv/kernel/vm.c:92
+  condition $bpnum vpn_1 == 32 && vpn_0 == 250
