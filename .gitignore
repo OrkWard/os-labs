@@ -37,6 +37,8 @@
 *.hex
 vmlinux
 Image
+uapp
+uapp.bin
 
 # Debug files
 *.dSYM/
