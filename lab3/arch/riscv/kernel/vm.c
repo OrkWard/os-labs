@@ -89,11 +89,11 @@ void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz,
     uint64 page_number = PGROUNDUP(sz) / PGSIZE;
     while (page_number--) {
         // 30 - 39
-        uint64 vpn_2 = (va & 0x7fc0000000) >> 30;
+        uint64 vpn_2 = va >> 30 & 0b111111111;
         // 21 - 30
-        uint64 vpn_1 = (va & 0x3fe00000) >> 21;
+        uint64 vpn_1 = va >> 21 & 0b111111111;
         // 12 - 21
-        uint64 vpn_0 = (va & 0x1ff000) >> 12;
+        uint64 vpn_0 = va >> 12 & 0b111111111;
 
         // page table layer 1
         uint64 *pgtbl_1;
@@ -103,8 +103,11 @@ void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz,
             // << 10 >> 12 => >> 2
             pgtbl[vpn_2] = (uint64)pgtbl_1 >> 2 | 1;
         } else {
-            // get 10 - 54
-            pgtbl_1 = (uint64 *)((pgtbl[vpn_2] & 0x3ffffffffffffc00) << 2);
+            // 找到一个页表需要 64 位地址，最后 12 位页内偏移由 vpn 提供
+            // 前 52 位取自上一张页表
+            //
+            // delete first 2 and last 10
+            pgtbl_1 = (uint64 *)(pgtbl[vpn_2] >> 10 << 12);
         }
 
         // page table layer 0
@@ -114,7 +117,7 @@ void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz,
             // set to valid
             pgtbl_1[vpn_1] = (uint64)pgtbl_0 >> 2 | 1;
         } else {
-            pgtbl_0 = (uint64 *)((pgtbl_1[vpn_1] & 0x3ffffffffffffc00) << 2);
+            pgtbl_0 = (uint64 *)(pgtbl_1[vpn_1] >> 10 << 12);
         }
 
         // physical address
