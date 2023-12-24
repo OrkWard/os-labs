@@ -24,9 +24,6 @@ extern uint64
 void task_init() {
     test_init(NR_TASKS);
 
-    // 初始化物理内存
-    mm_init();
-
     // 初始化 idle 进程
     uint64 page_bottom = kalloc();
     idle = (void *)page_bottom;

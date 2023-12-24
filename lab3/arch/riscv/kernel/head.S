@@ -13,11 +13,19 @@ _start:
     li t1, 0xffffffe000000000 - 0x80000000
     sub sp, t0, t1
 
+    # 虚拟地址
     jal setup_vm
     jal relocate
 
-    la sp, boot_stack_top # 设置栈底指针
+    jal mm_init # 初始化物理内存
+    
+    # 初始化页表
+    jal set_vm_final
+    
+    # 初始化进程
+    jal task_init
 
+    # 初始化中断
     la s0, _traps
     csrw stvec, s0 # 设置 trap 函数地址
 
@@ -26,9 +34,6 @@ _start:
 
     li t0, 1 << 1
     csrw sstatus, t0 # 启用中断
-    
-    # 初始化进程
-    jal task_init
 
     # 设置第一次中断
     jal clock_set_next_event
@@ -36,7 +41,7 @@ _start:
     j start_kernel # 跳到 start_kernel
 
 relocate:
-    # set ra = ra + PA2VA_OFFSET
+    # PA2VA_OFFSET
     li t0, 0xffffffe000000000 - 0x80000000
     add ra, ra, t0
     add sp, sp, t0

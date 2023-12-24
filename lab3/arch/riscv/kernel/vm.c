@@ -5,13 +5,13 @@
 #include "printk.h"
 #include "string.h"
 #include "types.h"
+#include <stddef.h>
 
 extern uint64 _stext;
 extern uint64 _etext;
 extern uint64 _srodata;
 extern uint64 _erodata;
 extern uint64 _sdata;
-extern uint64 _edata;
 
 unsigned long early_pgtbl[512] __attribute__((__aligned__(0x1000)));
 
@@ -26,11 +26,13 @@ void setup_vm(void) {
     3. Page Table Entry 的权限 V | R | W | X 位设置为 1
     */
     // 0x80000000 = 2^31 = 2 * 2^30，PPN[2] = 2
-    // 0x80000000 = 0x800000 * 2^12 = 0x800000 * page_size
-    early_pgtbl[2] = 0x800000ul << 10 | 0b1111;
+    // 0x80000000 = 0x80000 * 2^12 = 0x80000 * page_size
+    early_pgtbl[2] = 0x80000ul << 10 | 0b1111ul;
 
     // 0xffff_ffe0_0000_0000[PPN] = 0b110_000_000
-    early_pgtbl[0b110000000u] = 0x800000ul << 10 | 0b1111;
+    early_pgtbl[0b110000000u] = 0x80000ul << 10 | 0b1111ul;
+
+    printk("...setup vm done\n");
 }
 
 /* swapper_pg_dir: kernel pagetable 根目录， 在 setup_vm_final 进行映射。 */
@@ -43,16 +45,19 @@ void setup_vm_final(void) {
 
     // mapping kernel text X|-|R|V
     printk("%x\n%x\n", _stext, &_stext);
+    // va 为 _stext，减去偏移即得到 pa
     create_mapping(swapper_pg_dir, _stext, _stext - PA2VA_OFFSET,
                    _etext - _stext, 0b1011);
 
     // mapping kernel rodata -|-|R|V
-    create_mapping(swapper_pg_dir, _sdata, _sdata - PA2VA_OFFSET,
+    // va 为 _srodata，减去偏移即得到 pa
+    create_mapping(swapper_pg_dir, _srodata, _srodata - PA2VA_OFFSET,
                    _erodata - _srodata, 0b11);
 
     // mapping other memory -|W|R|V
-    create_mapping(swapper_pg_dir, _stext, _sdata - PA2VA_OFFSET,
-                   _edata - _sdata, 0b111);
+    // va 从 _sdata 开始，减去偏移得到 pa，范围到整个内存结束
+    create_mapping(swapper_pg_dir, _sdata, _sdata - PA2VA_OFFSET,
+                   VM_START + PHY_SIZE - _sdata, 0b111);
 
     // set satp with swapper_pg_dir
     asm volatile("csrw satp, %[table]" ::[table] "r"(swapper_pg_dir));
@@ -63,6 +68,7 @@ void setup_vm_final(void) {
     // flush icache
     asm volatile("fence.i");
 
+    printk("...setup vm final done\n");
     return;
 }
 
@@ -81,8 +87,40 @@ void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz,
     */
     uint64 page_number = PGROUNDUP(sz) / PGSIZE;
     while (page_number--) {
-        uint64 vpn2 = ((va & 0x7fc0000000) >> 30);
-        uint64 vpn1 = ((va & 0x3fe00000) >> 21);
-        uint64 vpn0 = ((va & 0x1ff000) >> 12);
+        // 30 - 39
+        uint64 vpn_2 = (va & 0x7fc0000000) >> 30;
+        // 21 - 30
+        uint64 vpn_1 = (va & 0x3fe00000) >> 21;
+        // 12 - 21
+        uint64 vpn_0 = (va & 0x1ff000) >> 12;
+
+        // page table layer 1
+        uint64 *pgtbl_1;
+        if (pgtbl[vpn_2] ^ 1) {
+            pgtbl_1 = (uint64 *)kalloc();
+            // set to valid
+            // << 10 >> 12 => >> 2
+            pgtbl[vpn_2] = (uint64)pgtbl_1 >> 2 | 1;
+        } else {
+            // get 10 - 54
+            pgtbl_1 = (uint64 *)((pgtbl[vpn_2] & 0x3ffffffffffffc00) << 2);
+        }
+
+        // page table layer 0
+        uint64 *pgtbl_0;
+        if (pgtbl_1[vpn_1] ^ 1) {
+            pgtbl_0 = (uint64 *)kalloc();
+            // set to valid
+            pgtbl_1[vpn_1] = (uint64)pgtbl_0 >> 2 | 1;
+        } else {
+            pgtbl_0 = (uint64 *)((pgtbl[vpn_1] & 0x3ffffffffffffc00) << 2);
+        }
+
+        // physical address
+        if (pgtbl_0[vpn_0] ^ 1) {
+            pgtbl_0[vpn_0] = pa >> 2 | perm;
+        }
+
+        va += 0x1000, pa += 0x1000;
     }
 }
