@@ -9,11 +9,12 @@
     .section .text.init
     .globl _start
 _start:
+    # 设置 sp（boot 栈物理地址）
     la t0, boot_stack_top
     li t1, 0xffffffe000000000 - 0x80000000
     sub sp, t0, t1
 
-    # 虚拟地址
+    # 开启虚拟地址
     jal setup_vm
     jal relocate
 
@@ -66,9 +67,6 @@ relocate:
     fence.i
 
     ret
-
-    .section .bss.stack
-    .globl boot_stack
 
     .section .bss.stack
     .globl boot_stack

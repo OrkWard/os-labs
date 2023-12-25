@@ -9,7 +9,7 @@ _traps:
     sd tp, 16(sp)
     sd t0, 24(sp)
     sd t1, 32(sp)
-    sd t2, 37(sp)
+    sd t2, 40(sp)
     sd t3, 48(sp)
     sd t4, 56(sp)
     sd t5, 64(sp)

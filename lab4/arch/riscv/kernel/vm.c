@@ -100,7 +100,7 @@ void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz,
         if (!(pgtbl[vpn_2] & 1)) {
             pgtbl_1 = (uint64 *)kalloc();
             // set to valid
-            // << 10 >> 12 => >> 2
+            // >> 12 << 10 => >> 2
             pgtbl[vpn_2] = (uint64)pgtbl_1 >> 2 | 1;
         } else {
             // 找到一个页表需要 64 位地址，最后 12 位页内偏移由 vpn 提供
