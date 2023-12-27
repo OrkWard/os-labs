@@ -60,8 +60,10 @@ void setup_vm_final(void) {
                    (uint64)&_sdata - PA2VA_OFFSET,
                    VM_START + PHY_SIZE - (uint64)&_sdata, 0b111);
 
-    // set satp with swapper_pg_dir
-    asm volatile("csrw satp, %[table]" ::[table] "r"(swapper_pg_dir));
+    uint64 satp
+        = ((uint64)swapper_pg_dir - PA2VA_OFFSET) >> 12 | 0x8000000000000000;
+    //  set satp
+    asm volatile("csrw satp, %[table]" ::[table] "r"(satp));
 
     // flush TLB
     asm volatile("sfence.vma zero, zero");
@@ -100,14 +102,15 @@ void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz,
         if (!(pgtbl[vpn_2] & 1)) {
             pgtbl_1 = (uint64 *)kalloc();
             // set to valid
-            // >> 12 << 10 => >> 2
-            pgtbl[vpn_2] = (uint64)pgtbl_1 >> 2 | 1;
+            // << 10 >> 12 => >> 2
+            printk("%lx, %lx\n", pgtbl_1, (uint64)pgtbl_1 - (PA2VA_OFFSET));
+            pgtbl[vpn_2] = ((uint64)pgtbl_1 - PA2VA_OFFSET) >> 2 | 1;
         } else {
             // 找到一个页表需要 64 位地址，最后 12 位页内偏移由 vpn 提供
             // 前 52 位取自上一张页表
             //
             // delete first 2 and last 10
-            pgtbl_1 = (uint64 *)(pgtbl[vpn_2] >> 10 << 12);
+            pgtbl_1 = (uint64 *)((pgtbl[vpn_2] >> 10 << 12) + PA2VA_OFFSET);
         }
 
         // page table layer 0
@@ -115,9 +118,9 @@ void create_mapping(uint64 *pgtbl, uint64 va, uint64 pa, uint64 sz,
         if (!(pgtbl_1[vpn_1] & 1)) {
             pgtbl_0 = (uint64 *)kalloc();
             // set to valid
-            pgtbl_1[vpn_1] = (uint64)pgtbl_0 >> 2 | 1;
+            pgtbl_1[vpn_1] = ((uint64)pgtbl_0 - PA2VA_OFFSET) >> 2 | 1;
         } else {
-            pgtbl_0 = (uint64 *)(pgtbl_1[vpn_1] >> 10 << 12);
+            pgtbl_0 = (uint64 *)((pgtbl_1[vpn_1] >> 10 << 12) + PA2VA_OFFSET);
         }
 
         // physical address
