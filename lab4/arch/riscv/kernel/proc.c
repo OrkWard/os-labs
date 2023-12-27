@@ -10,9 +10,9 @@
 
 extern void __dummy();
 extern void __switch_to(struct task_struct *prev, struct task_struct *next);
-extern uint64 *swapper_pg_dir;
-extern uint64 *_sramdisk;
-extern uint64 *_eramdisk;
+extern uint64 swapper_pg_dir[512] __attribute__((__aligned__(0x1000)));
+extern uint64 _sramdisk[];
+extern uint64 _eramdisk[];
 
 struct task_struct *idle;           // idle process
 struct task_struct *current;        // 指向当前运行线程的 `task_struct`

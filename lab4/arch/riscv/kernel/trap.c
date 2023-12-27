@@ -12,9 +12,12 @@ struct pt_regs {
 
 void syscall(struct pt_regs *regs) {
     switch (regs->a0) {
-        case SYS_WRITE:
-            // sys_write(unsigned int fd, const char *buf, size_t count)
+        case SYS_WRITE: {
+            uint64 write_count
+                = sys_write(regs->a0, (char *)regs->a1, regs->a2);
+            regs->a0 = write_count;
             break;
+        }
         case SYS_GETPID: {
             uint64 pid = sys_getpid();
             regs->a0 = pid;

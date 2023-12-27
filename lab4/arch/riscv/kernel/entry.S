@@ -131,7 +131,7 @@ __switch_to:
     # 物理地址
     sub t1, t1, t0
     # shift right 12
-    srli t1, t1, 2
+    srli t1, t1, 12
     # mode Sv39
     li t2, 8 << 60
     or t1, t1, t2

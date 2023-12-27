@@ -18,7 +18,8 @@ _start:
     jal setup_vm
     jal relocate
 
-    jal mm_init # 初始化物理内存
+    # 初始化物理内存
+    jal mm_init
     
     # 初始化页表
     jal setup_vm_final
