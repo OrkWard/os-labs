@@ -47,7 +47,6 @@ void trap_handler(unsigned long scause, unsigned long sepc,
             case 8:
                 printk("[S-mode] User Environment Call\n");
                 syscall(regs);
-                // TODO: why 4?
                 regs->sepc += 4;
                 break;
         }

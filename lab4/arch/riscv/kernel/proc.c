@@ -1,5 +1,6 @@
 #include "proc.h"
 #include "defs.h"
+#include "elf.h"
 #include "mm.h"
 #include "printk.h"
 #include "rand.h"
@@ -25,6 +26,35 @@ extern uint64
     task_test_priority[]; // test_init 后, 用于初始化 task[i].priority 的数组
 extern uint64
     task_test_counter[]; // test_init 后, 用于初始化 task[i].counter  的数组
+
+void load_elf(struct task_struct *user_task) {
+    // elf header
+    Elf64_Ehdr *ehdr = (Elf64_Ehdr *)_sramdisk;
+
+    // elf segments 起始
+    uint64 _sphdr = (uint64)ehdr + ehdr->e_phoff;
+    int phdr_num = ehdr->e_phnum;
+
+    for (int i = 0; i < phdr_num; ++i) {
+        Elf64_Phdr *phdr = (Elf64_Phdr *)(_sphdr + sizeof(Elf64_Phdr) * i);
+        if (phdr->p_type == PT_LOAD) {
+            // 分配内存
+            uint64 sz = phdr->p_memsz;
+            uint64 addr = alloc_pages(PGROUNDUP(sz) / PGSIZE);
+
+            // 链接时，没有 4KB 对齐，需要处理偏移
+            printk("%x", phdr->p_vaddr);
+            uint64 offset
+                = (uint64)(phdr->p_vaddr) - PGROUNDDOWN(phdr->p_vaddr);
+            // 复制段
+            memcpy((void *)(addr + offset),
+                   (void *)((uint64)ehdr + phdr->p_offset), sz);
+
+            create_mapping(user_task->pgtbl, (uint64)phdr->p_vaddr,
+                           addr - PA2VA_OFFSET, sz, phdr->p_flags << 1 | 0x1);
+        }
+    }
+}
 
 void task_init() {
     test_init(NR_TASKS);
