@@ -381,6 +381,31 @@
       "-DPRIORITY",
       "-march=rv64g_zifencei",
       "-c",
+      "syscall.c"
+    ],
+    "directory": "/home/orks/Repos/os-labs/lab4/arch/riscv/kernel",
+    "file": "/home/orks/Repos/os-labs/lab4/arch/riscv/kernel/syscall.c"
+  },
+  {
+    "arguments": [
+      "/usr/bin/riscv64-linux-gnu-gcc",
+      "-march=rv64imafd",
+      "-mabi=lp64",
+      "-mcmodel=medany",
+      "-fno-builtin",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-nostdinc",
+      "-Wl,--nmagic",
+      "-Wl,--gc-sections",
+      "-g",
+      "-I",
+      "/home/orks/Repos/os-labs/lab4/include",
+      "-I",
+      "/home/orks/Repos/os-labs/lab4/arch/riscv/include",
+      "-DPRIORITY",
+      "-march=rv64g_zifencei",
+      "-c",
       "trap.c"
     ],
     "directory": "/home/orks/Repos/os-labs/lab4/arch/riscv/kernel",

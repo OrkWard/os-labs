@@ -1,11 +1,13 @@
 #include "printk.h"
+#include "proc.h"
 #include "sbi.h"
 
 extern void test();
 
 int start_kernel() {
-    printk("2023");
-    printk(" Hello RISC-V\n");
+    printk("2023 Hello RISC-V\n");
+
+    schedule();
 
     test(); // DO NOT DELETE !!!
 

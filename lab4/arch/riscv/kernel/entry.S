@@ -2,6 +2,13 @@
     .align 2
     .globl _traps
 _traps:
+    # 交换 sp 与 sscratch，非 0 即为 U-mode 中断，直接跳转去切换
+    csrrw sp, sscratch, sp
+    bne sp, x0, SWITCH
+    # 否则交换回来
+    csrrw sp, sscratch, sp
+
+SWITCH:
     # 1. save 32 registers and sepc to stack
     addi sp, sp, -200
     sd ra, 0(sp)
@@ -29,6 +36,7 @@ _traps:
     # 2. call trap_handler
     csrr a0, scause
     mv a1, t0 # spec
+    mv a2, sp # regs
     jal trap_handler
 
     # 3. restore sepc and 32 registers (x2(sp) should be restore last) from stack
@@ -63,8 +71,9 @@ _traps:
     .extern dummy
     .globl __dummy
 __dummy:
-    la t0, dummy
-    csrw sepc, t0
+    # exchange sp & sscratch
+    # S-mode 栈与 U-mode 栈交换
+    csrrw sp, sscratch, sp
 
     sret
 
@@ -87,6 +96,12 @@ __switch_to:
     sd s9, 136(a0)
     sd s10, 144(a0)
     sd s11, 152(a0)
+    csrr t0, sepc
+    sd t0, 160(a0)
+    csrr t0, sstatus
+    sd t0, 168(a0)
+    csrr t0, sscratch
+    sd t0, 176(a0)
 
     # restore state from next process
     ld ra, 48(a1)
@@ -103,5 +118,26 @@ __switch_to:
     ld s9, 136(a1)
     ld s10, 144(a1)
     ld s11, 152(a1)
+    ld t0, 160(a1)
+    csrw sepc, t0
+    ld t0, 168(a1)
+    csrw sstatus, t0
+    ld t0, 176(a1)
+    csrw sscratch, t0
+    
+    # 切换页表
+    li t0, 0xffffffe000000000 - 0x80000000
+    ld t1, 184(a1)
+    # 物理地址
+    sub t1, t1, t0
+    # shift right 12
+    srli t1, t1, 2
+    # mode Sv39
+    li t2, 8 << 60
+    or t1, t1, t2
+    csrw satp, t1
+
+    sfence.vma
+    fence.i
 
     ret

@@ -1,19 +1,52 @@
 #include "defs.h"
 #include "printk.h"
 #include "proc.h"
+#include "syscall.h"
+#include "types.h"
 
-void trap_handler(unsigned long scause, unsigned long sepc) {
+struct pt_regs {
+    uint64 ra, gp, tp, t0, t1, t2, t3, t4, t5, t6;
+    uint64 a0, a1, a2, a3, a4, a5, a6, a7;
+    uint64 sepc;
+};
+
+void syscall(struct pt_regs *regs) {
+    switch (regs->a0) {
+        case SYS_WRITE:
+            // sys_write(unsigned int fd, const char *buf, size_t count)
+            break;
+        case SYS_GETPID: {
+            uint64 pid = sys_getpid();
+            regs->a0 = pid;
+            break;
+        }
+    }
+}
+
+void trap_handler(unsigned long scause, unsigned long sepc,
+                  struct pt_regs *regs) {
     // 防止在调度时触发中断，暂时关闭中断
     // csr_write(sstatus, 0);
 
     if (scause >> (64 - 1) & 1) {
         // is interrupt
-        if (scause << 1 >> 1 == 5) {
-            printk("Supervisor Timer Interrupt\n");
-            clock_set_next_event();
+        switch (scause << 1 >> 1) {
+            case 5:
+                printk("[S-mode] Supervisor Timer Interrupt\n");
+                clock_set_next_event();
 
-            // 切换进程
-            do_timer();
+                // 切换进程
+                do_timer();
+                break;
+        }
+    } else {
+        switch (scause << 1 >> 1) {
+            case 8:
+                printk("[S-mode] User Environment Call");
+                syscall(regs);
+                // TODO: why 4?
+                regs->sepc += 4;
+                break;
         }
     }
 

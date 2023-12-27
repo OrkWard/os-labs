@@ -3,11 +3,16 @@
 #include "mm.h"
 #include "printk.h"
 #include "rand.h"
+#include "string.h"
 #include "test.h"
 #include "types.h"
+#include "vm.h"
 
 extern void __dummy();
 extern void __switch_to(struct task_struct *prev, struct task_struct *next);
+extern uint64 *swapper_pg_dir;
+extern uint64 *_sramdisk;
+extern uint64 *_eramdisk;
 
 struct task_struct *idle;           // idle process
 struct task_struct *current;        // 指向当前运行线程的 `task_struct`
@@ -50,6 +55,35 @@ void task_init() {
         // ra 初始化为 __dummy 地址
         task[i]->thread.ra = (uint64)&__dummy;
         task[i]->thread.sp = page_bottom + PGSIZE;
+        // sepc 初始化为 USER_START
+        task[i]->thread.sepc = USER_START;
+        // bit 8: SPP, bit 5: SPIE, bit 18: SUM
+        task[i]->thread.sstatus = 1 << 8 | 1 << 5 | 1 << 18;
+        // sscratch 设置为 USER_END
+        task[i]->thread.sscratch = USER_END;
+
+        // 用户栈和内核栈
+        task[i]->thread_info.user_sp = USER_END;
+        task[i]->thread_info.kernel_sp = (uint64)task[i] + PGSIZE;
+
+        // 创建页表
+        task[i]->pgtbl = (uint64 *)kalloc();
+        // 复制内核页表
+        memcpy(task[i]->pgtbl, swapper_pg_dir, PGSIZE);
+
+        // 分配用户程序所需的空间
+        uint64 sz = (_eramdisk - _sramdisk);
+        uint64 uapp = alloc_pages(PGROUNDUP(sz) / PGSIZE);
+        // 整个加载进内存
+        memcpy((uint64 *)uapp, _sramdisk, sz);
+        // 映射虚拟地址
+        // 程序段，可读可写可执行，用户可访问，有效
+        create_mapping(task[i]->pgtbl, USER_START, uapp - PA2VA_OFFSET, sz,
+                       0b11111);
+        // 栈段，可读可写，用户可访问，有效
+        uint64 stack = alloc_page();
+        create_mapping(task[i]->pgtbl, USER_END - PGSIZE, stack - PA2VA_OFFSET,
+                       PGSIZE, 0b10111);
     }
 
     printk("...proc_init done!\n");

@@ -7,3 +7,11 @@ void *memset(void *dst, int c, uint64 n) {
 
     return dst;
 }
+
+void *memcpy(void *dst, void *src, uint64 size) {
+    for (uint64 i = 0; i < size; ++i) {
+        ((char *)dst)[i] = ((char *)src)[i];
+    }
+
+    return dst;
+}
