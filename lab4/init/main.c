@@ -5,7 +5,7 @@
 extern void test();
 
 int start_kernel() {
-    printk("2023 Hello RISC-V\n");
+    printk("[S-mode] 2023 Hello RISC-V\n");
 
     schedule();
 

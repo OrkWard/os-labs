@@ -58,7 +58,7 @@ void task_init() {
         // sepc 初始化为 USER_START
         task[i]->thread.sepc = USER_START;
         // bit 8: SPP, bit 5: SPIE, bit 18: SUM
-        task[i]->thread.sstatus = 1 << 8 | 1 << 5 | 1 << 18;
+        task[i]->thread.sstatus = 1 << 5 | 1 << 18;
         // sscratch 设置为 USER_END
         task[i]->thread.sscratch = USER_END;
 
@@ -72,7 +72,7 @@ void task_init() {
         memcpy(task[i]->pgtbl, swapper_pg_dir, PGSIZE);
 
         // 分配用户程序所需的空间
-        uint64 sz = (_eramdisk - _sramdisk);
+        uint64 sz = ((uint64)_eramdisk - (uint64)_sramdisk);
         uint64 uapp = alloc_pages(PGROUNDUP(sz) / PGSIZE);
         // 整个加载进内存
         memcpy((uint64 *)uapp, _sramdisk, sz);

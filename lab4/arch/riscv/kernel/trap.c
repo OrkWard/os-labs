@@ -11,7 +11,7 @@ struct pt_regs {
 };
 
 void syscall(struct pt_regs *regs) {
-    switch (regs->a0) {
+    switch (regs->a7) {
         case SYS_WRITE: {
             uint64 write_count
                 = sys_write(regs->a0, (char *)regs->a1, regs->a2);
@@ -45,7 +45,7 @@ void trap_handler(unsigned long scause, unsigned long sepc,
     } else {
         switch (scause << 1 >> 1) {
             case 8:
-                printk("[S-mode] User Environment Call");
+                printk("[S-mode] User Environment Call\n");
                 syscall(regs);
                 // TODO: why 4?
                 regs->sepc += 4;
