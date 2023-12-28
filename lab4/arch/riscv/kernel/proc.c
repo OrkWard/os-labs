@@ -30,6 +30,7 @@ extern uint64
 void load_elf(struct task_struct *user_task) {
     // elf header
     Elf64_Ehdr *ehdr = (Elf64_Ehdr *)_sramdisk;
+    printk("elf ident: %lx\n", *(uint64 *)(ehdr->e_ident));
 
     // elf segments 起始
     uint64 _sphdr = (uint64)ehdr + ehdr->e_phoff;
@@ -40,20 +41,25 @@ void load_elf(struct task_struct *user_task) {
         if (phdr->p_type == PT_LOAD) {
             // 分配内存
             uint64 sz = phdr->p_memsz;
-            uint64 addr = alloc_pages(PGROUNDUP(sz) / PGSIZE);
-
             // 链接时，没有 4KB 对齐，需要处理偏移
-            printk("%x", phdr->p_vaddr);
             uint64 offset
                 = (uint64)(phdr->p_vaddr) - PGROUNDDOWN(phdr->p_vaddr);
+            uint64 addr = alloc_pages(PGROUNDUP(sz + offset) / PGSIZE);
+
             // 复制段
             memcpy((void *)(addr + offset),
                    (void *)((uint64)ehdr + phdr->p_offset), sz);
 
             create_mapping(user_task->pgtbl, (uint64)phdr->p_vaddr,
-                           addr - PA2VA_OFFSET, sz, phdr->p_flags << 1 | 0x1);
+                           addr - PA2VA_OFFSET, sz,
+                           phdr->p_flags << 1 | 0b10001);
         }
     }
+
+    // sepc 初始化为 e_entry
+    user_task->thread.sepc = ehdr->e_entry;
+    // sscratch 设置为 USER_END
+    user_task->thread.sscratch = USER_END;
 }
 
 void task_init() {
@@ -85,21 +91,24 @@ void task_init() {
         // ra 初始化为 __dummy 地址
         task[i]->thread.ra = (uint64)&__dummy;
         task[i]->thread.sp = page_bottom + PGSIZE;
-        // sepc 初始化为 USER_START
-        task[i]->thread.sepc = USER_START;
         // bit 8: SPP, bit 5: SPIE, bit 18: SUM
         task[i]->thread.sstatus = 1 << 5 | 1 << 18;
-        // sscratch 设置为 USER_END
-        task[i]->thread.sscratch = USER_END;
-
-        // 用户栈和内核栈
-        task[i]->thread_info.user_sp = USER_END;
-        task[i]->thread_info.kernel_sp = (uint64)task[i] + PGSIZE;
 
         // 创建页表
         task[i]->pgtbl = (uint64 *)kalloc();
         // 复制内核页表
         memcpy(task[i]->pgtbl, swapper_pg_dir, PGSIZE);
+
+        // 栈段，可读可写，用户可访问，有效
+        uint64 stack = alloc_page();
+        create_mapping(task[i]->pgtbl, USER_END - PGSIZE, stack - PA2VA_OFFSET,
+                       PGSIZE, 0b10111);
+
+#ifdef USER_RAW
+        // sepc 初始化为 USER_START
+        task[i]->thread.sepc = USER_START;
+        // sscratch 设置为 USER_END
+        task[i]->thread.sscratch = USER_END;
 
         // 分配用户程序所需的空间
         uint64 sz = ((uint64)_eramdisk - (uint64)_sramdisk);
@@ -110,10 +119,9 @@ void task_init() {
         // 程序段，可读可写可执行，用户可访问，有效
         create_mapping(task[i]->pgtbl, USER_START, uapp - PA2VA_OFFSET, sz,
                        0b11111);
-        // 栈段，可读可写，用户可访问，有效
-        uint64 stack = alloc_page();
-        create_mapping(task[i]->pgtbl, USER_END - PGSIZE, stack - PA2VA_OFFSET,
-                       PGSIZE, 0b10111);
+#else
+        load_elf(task[i]);
+#endif
     }
 
     printk("...proc_init done!\n");
