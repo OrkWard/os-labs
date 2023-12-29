@@ -1,9 +1,14 @@
 #include "defs.h"
+#include "mm.h"
 #include "printk.h"
 #include "proc.h"
 #include "syscall.h"
 #include "types.h"
+#include "vm.h"
+#include <stdint.h>
+#include <string.h>
 
+extern struct task_struct *current;
 struct pt_regs {
     uint64 ra, gp, tp, t0, t1, t2, t3, t4, t5, t6;
     uint64 a0, a1, a2, a3, a4, a5, a6, a7;
@@ -24,6 +29,28 @@ void syscall(struct pt_regs *regs) {
             break;
         }
     }
+}
+
+void do_page_fault(struct pt_regs *regs) {
+    struct vm_area_struct *vma = find_vma(current, regs->stval);
+
+    if (!vma) {
+        // 非法地址
+        printk("[S-mode] !Invalid Address\n");
+        printk("sepc: %lx\n", regs->sepc);
+        printk("stval: %lx\n", regs->stval);
+    }
+
+    int64_t addr = kalloc();
+    if (vma->vm_flags && VM_ANONYM) {
+        memset((void *)addr, '0', PGSIZE);
+    } else {
+        memcpy((void *)addr, (void *)vma->vm_content_offset_in_file,
+               vma->vm_end - vma->vm_start);
+    }
+
+    create_mapping(current->pgtbl, vma->vm_start, addr - PA2VA_OFFSET,
+                   vma->vm_end - vma->vm_start, vma->vm_flags & 0b10001);
 }
 
 void trap_handler(unsigned long scause, unsigned long sepc,
@@ -55,6 +82,13 @@ void trap_handler(unsigned long scause, unsigned long sepc,
                 syscall(regs);
                 regs->sepc += 4;
                 break;
+            case 12:
+                printk("[S-mode] Instruction Page Fault\n");
+
+            case 13:
+                printk("[S-mode] Load Page Fault\n");
+            case 15:
+                printk("[S-mode] Store Page Fault Fault\n");
             default:
                 printk("[S-mode] !Unhandled Exception\n");
                 printk("scause: %lx, ", scause);

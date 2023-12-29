@@ -7,6 +7,11 @@
 #define PRIORITY_MIN 1
 #define PRIORITY_MAX 10
 
+#define VM_X_MASK 0x0000000000000008
+#define VM_W_MASK 0x0000000000000004
+#define VM_R_MASK 0x0000000000000002
+#define VM_ANONYM 0x0000000000000001
+
 #define MAX_INT 10000
 
 typedef uint64 *pagetable_t;
@@ -27,6 +32,24 @@ struct thread_struct {
     uint64 sepc, sstatus, sscratch;
 };
 
+struct vm_area_struct {
+    uint64 vm_start; /* VMA 对应的用户态虚拟地址的开始   */
+    uint64 vm_end;   /* VMA 对应的用户态虚拟地址的结束   */
+    uint64 vm_flags; /* VMA 对应的 flags */
+
+    /* uint64_t file_offset_on_disk */ /* 原本需要记录对应的文件在磁盘上的位置，
+                               但是我们只有一个文件 uapp，所以暂时不需要记录 */
+
+    uint64 vm_content_offset_in_file; /* 如果对应了一个文件，
+         那么这块 VMA 起始地址对应的文件内容相对文件起始位置的偏移量，
+                           也就是 ELF 中各段的 p_offset 值 */
+
+    uint64 vm_content_size_in_file; /* 对应的文件内容的长度。
+                                       思考为什么还需要这个域?
+                                       和 (vm_end-vm_start)
+                                       一比，不是冗余了吗? */
+};
+
 /* 线程数据结构 */
 struct task_struct {
     struct thread_info thread_info;
@@ -38,6 +61,8 @@ struct task_struct {
     struct thread_struct thread;
 
     pagetable_t pgtbl;
+    uint64 vma_cnt;
+    struct vm_area_struct vmas[0];
 };
 
 /* 线程初始化 创建 NR_TASKS 个线程 */
@@ -54,3 +79,9 @@ void switch_to(struct task_struct *next);
 
 /* dummy funciton: 一个循环程序, 循环输出自己的 pid 以及一个自增的局部变量 */
 void dummy();
+
+void do_mmap(struct task_struct *task, uint64 addr, uint64 length, uint64 flags,
+             uint64 vm_content_offset_in_file, uint64 vm_content_size_in_file);
+
+/* 创建一个 vma */
+struct vm_area_struct *find_vma(struct task_struct *task, uint64 addr);

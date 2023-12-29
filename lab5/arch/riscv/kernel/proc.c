@@ -38,22 +38,14 @@ void load_elf(struct task_struct *user_task) {
     for (int i = 0; i < phdr_num; ++i) {
         Elf64_Phdr *phdr = (Elf64_Phdr *)(_sphdr + sizeof(Elf64_Phdr) * i);
         if (phdr->p_type == PT_LOAD) {
-            // 分配内存
-            uint64 sz = phdr->p_memsz;
-            // 链接时，没有 4KB 对齐，需要处理偏移
-            uint64 offset
-                = (uint64)(phdr->p_vaddr) - PGROUNDDOWN(phdr->p_vaddr);
-            uint64 addr = alloc_pages(PGROUNDUP(sz + offset) / PGSIZE);
-
-            // 复制段
-            memcpy((void *)(addr + offset),
-                   (void *)((uint64)ehdr + phdr->p_offset), sz);
-
-            create_mapping(user_task->pgtbl, (uint64)phdr->p_vaddr,
-                           addr - PA2VA_OFFSET, sz,
-                           phdr->p_flags << 1 | 0b10001);
+            // 创建 vma
+            do_mmap(user_task, phdr->p_vaddr, phdr->p_memsz, phdr->p_flags << 1,
+                    phdr->p_offset, phdr->p_filesz);
         }
     }
+
+    do_mmap(user_task, USER_END - PGSIZE, PGSIZE,
+            VM_R_MASK | VM_W_MASK | VM_ANONYM, 0, 0);
 
     // sepc 初始化为 e_entry
     user_task->thread.sepc = ehdr->e_entry;
@@ -98,29 +90,7 @@ void task_init() {
         // 复制内核页表
         memcpy(task[i]->pgtbl, swapper_pg_dir, PGSIZE);
 
-        // 栈段，可读可写，用户可访问，有效
-        uint64 stack = alloc_page();
-        create_mapping(task[i]->pgtbl, USER_END - PGSIZE, stack - PA2VA_OFFSET,
-                       PGSIZE, 0b10111);
-
-#ifdef USER_RAW
-        // sepc 初始化为 USER_START
-        task[i]->thread.sepc = USER_START;
-        // sscratch 设置为 USER_END
-        task[i]->thread.sscratch = USER_END;
-
-        // 分配用户程序所需的空间
-        uint64 sz = ((uint64)_eramdisk - (uint64)_sramdisk);
-        uint64 uapp = alloc_pages(PGROUNDUP(sz) / PGSIZE);
-        // 整个加载进内存
-        memcpy((uint64 *)uapp, _sramdisk, sz);
-        // 映射虚拟地址
-        // 程序段，可读可写可执行，用户可访问，有效
-        create_mapping(task[i]->pgtbl, USER_START, uapp - PA2VA_OFFSET, sz,
-                       0b11111);
-#else
         load_elf(task[i]);
-#endif
     }
 
     printk("...proc_init done!\n");
@@ -216,4 +186,24 @@ void schedule() {
         schedule();
     }
 #endif
+}
+
+void do_mmap(struct task_struct *task, uint64 addr, uint64 length, uint64 flags,
+             uint64 vm_content_offset_in_file, uint64 vm_content_size_in_file) {
+    // vma 地址
+    struct vm_area_struct *vma = &task->vmas[task->vma_cnt++];
+    vma->vm_start = addr;
+    vma->vm_end = addr + length;
+    vma->vm_flags = flags;
+    vma->vm_content_offset_in_file = vm_content_offset_in_file;
+    vma->vm_content_size_in_file = vm_content_offset_in_file;
+}
+
+struct vm_area_struct *find_vma(struct task_struct *task, uint64_t addr) {
+    for (int i = 0; i < task->vma_cnt; ++i) {
+        if (addr >= task->vmas[i].vm_start && addr < task->vmas[i].vm_end) {
+            return &(task->vmas[i]);
+        }
+    }
+    return 0;
 }
