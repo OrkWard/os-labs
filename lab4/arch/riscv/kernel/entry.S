@@ -65,6 +65,9 @@ SWITCH:
     addi sp, sp, 200
 
     # 4. return from trap
+    csrrw sp, sscratch, sp
+    bne sp, x0, RETURN
+    csrrw sp, sscratch, sp
     sret
 
     # return to function dummy

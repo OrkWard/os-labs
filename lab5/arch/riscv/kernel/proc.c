@@ -30,7 +30,6 @@ extern uint64
 void load_elf(struct task_struct *user_task) {
     // elf header
     Elf64_Ehdr *ehdr = (Elf64_Ehdr *)_sramdisk;
-    printk("elf ident: %lx\n", *(uint64 *)(ehdr->e_ident));
 
     // elf segments 起始
     uint64 _sphdr = (uint64)ehdr + ehdr->e_phoff;

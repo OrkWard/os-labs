@@ -7,7 +7,7 @@
 struct pt_regs {
     uint64 ra, gp, tp, t0, t1, t2, t3, t4, t5, t6;
     uint64 a0, a1, a2, a3, a4, a5, a6, a7;
-    uint64 sepc;
+    uint64 sepc, stval;
 };
 
 void syscall(struct pt_regs *regs) {
@@ -41,6 +41,12 @@ void trap_handler(unsigned long scause, unsigned long sepc,
                 // 切换进程
                 do_timer();
                 break;
+            default:
+                printk("[S-mode] !Unhandled Interrupt\n");
+                printk("scause: %lx, ", scause);
+                printk("sepc: %lx\n", regs->sepc);
+                while (1)
+                    ;
         }
     } else {
         switch (scause << 1 >> 1) {
@@ -49,6 +55,13 @@ void trap_handler(unsigned long scause, unsigned long sepc,
                 syscall(regs);
                 regs->sepc += 4;
                 break;
+            default:
+                printk("[S-mode] !Unhandled Exception\n");
+                printk("scause: %lx, ", scause);
+                printk("stval: %lx, ", regs->stval);
+                printk("sepc: %lx\n", regs->sepc);
+                while (1)
+                    ;
         }
     }
 
