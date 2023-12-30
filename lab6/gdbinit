@@ -1,0 +1,5 @@
+dashboard
+dashboard -layout stack assembly registers source breakpoints variables expressions memory !history !threads
+
+target remote :1234
+b *0x0
