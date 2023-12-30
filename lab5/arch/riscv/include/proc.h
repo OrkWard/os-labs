@@ -36,10 +36,7 @@ struct vm_area_struct {
     uint64 vm_start; /* VMA 对应的用户态虚拟地址的开始   */
     uint64 vm_end;   /* VMA 对应的用户态虚拟地址的结束   */
     uint64 vm_flags; /* VMA 对应的 flags */
-
-    /* uint64_t file_offset_on_disk */ /* 原本需要记录对应的文件在磁盘上的位置，
-                               但是我们只有一个文件 uapp，所以暂时不需要记录 */
-
+    uint64 file_offset_on_disk;       /* 文件起始位置 */
     uint64 vm_content_offset_in_file; /* 如果对应了一个文件，
          那么这块 VMA 起始地址对应的文件内容相对文件起始位置的偏移量，
                            也就是 ELF 中各段的 p_offset 值 */

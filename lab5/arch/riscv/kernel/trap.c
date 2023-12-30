@@ -39,18 +39,25 @@ void do_page_fault(struct pt_regs *regs) {
         printk("[S-mode] !Invalid Address\n");
         printk("sepc: %lx\n", regs->sepc);
         printk("stval: %lx\n", regs->stval);
+        while (1)
+            ;
     }
 
-    int64_t addr = kalloc();
-    if (vma->vm_flags && VM_ANONYM) {
-        memset((void *)addr, '0', PGSIZE);
+    int64_t sz = vma->vm_end - vma->vm_start;
+    /* 页偏移 */
+    int64_t offset = vma->vm_start - PGROUNDDOWN(vma->vm_start);
+    int64_t addr = alloc_pages(PGROUNDUP(sz + offset) / PGSIZE);
+    if (vma->vm_flags & VM_ANONYM) {
+        memset((void *)addr + offset, '0', sz);
     } else {
-        memcpy((void *)addr, (void *)vma->vm_content_offset_in_file,
-               vma->vm_end - vma->vm_start);
+        memcpy(
+            (void *)(addr + offset),
+            (void *)(vma->vm_content_offset_in_file + vma->file_offset_on_disk),
+            sz);
     }
 
-    create_mapping(current->pgtbl, vma->vm_start, addr - PA2VA_OFFSET,
-                   vma->vm_end - vma->vm_start, vma->vm_flags & 0b10001);
+    create_mapping(current->pgtbl, vma->vm_start, addr - PA2VA_OFFSET, sz,
+                   vma->vm_flags | 0b10001);
 }
 
 void trap_handler(unsigned long scause, unsigned long sepc,
@@ -84,11 +91,18 @@ void trap_handler(unsigned long scause, unsigned long sepc,
                 break;
             case 12:
                 printk("[S-mode] Instruction Page Fault\n");
-
+                printk("stval: %lx, ", regs->stval);
+                printk("sepc: %lx\n", regs->sepc);
+                do_page_fault(regs);
+                break;
             case 13:
                 printk("[S-mode] Load Page Fault\n");
+                do_page_fault(regs);
+                break;
             case 15:
                 printk("[S-mode] Store Page Fault Fault\n");
+                do_page_fault(regs);
+                break;
             default:
                 printk("[S-mode] !Unhandled Exception\n");
                 printk("scause: %lx, ", scause);

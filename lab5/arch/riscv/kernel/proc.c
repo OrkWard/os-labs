@@ -195,6 +195,7 @@ void do_mmap(struct task_struct *task, uint64 addr, uint64 length, uint64 flags,
     vma->vm_start = addr;
     vma->vm_end = addr + length;
     vma->vm_flags = flags;
+    vma->file_offset_on_disk = (uint64)_sramdisk;
     vma->vm_content_offset_in_file = vm_content_offset_in_file;
     vma->vm_content_size_in_file = vm_content_offset_in_file;
 }
