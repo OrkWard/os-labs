@@ -9,6 +9,11 @@
 #include <string.h>
 
 extern struct task_struct *current;
+extern struct task_struct *task[];
+extern uint64 __ret_from_fork;
+
+extern uint64 swapper_pg_dir[512] __attribute__((__aligned__(0x1000)));
+
 struct pt_regs {
     uint64 ra, gp, tp, t0, t1, t2, t3, t4, t5, t6;
     uint64 a0, a1, a2, a3, a4, a5, a6, a7;
@@ -27,6 +32,46 @@ void syscall(struct pt_regs *regs) {
             uint64 pid = sys_getpid();
             regs->a0 = pid;
             break;
+        }
+        case SYS_CLONE: {
+            /*
+            5. 根据 parent task 的页表和 vma 来分配并拷贝 child task
+            在用户态会用到的内存
+
+            6. 返回子 task 的 pid
+           */
+            // 父进程 pid
+            uint64_t pid = sys_getpid();
+            // 子进程的内核栈
+            struct task_struct *task_page = (void *)kalloc();
+            // 复制
+            memcpy(task_page, task[pid], PGSIZE);
+            // 设置 ra 和 sp
+            task_page->thread.ra = __ret_from_fork;
+            task_page->thread.sp += (long)task_page - (long)task[pid];
+
+            // 子进程内核栈中保存的寄存器
+            struct pt_regs *child_regs
+                = (void *)((long)regs - (long)task_page + (long)task[pid]);
+            // 子进程 fork 返回值 0
+            child_regs->a0 = 0;
+
+            // 复制内核页表
+            task_page->pgtbl = (uint64 *)kalloc();
+            memcpy(task_page->pgtbl, swapper_pg_dir, PGSIZE);
+
+            for (int i = 0; i < MAX_TASKS; ++i) {
+                if (task[i] == NULL) {
+                    task[i] = task_page;
+                    // 父进程 fork 调用返回子进程 pid
+                    regs->a0 = i;
+                    break;
+                }
+            }
+
+            printk("Cannot create more tasks\n");
+            while (1)
+                ;
         }
     }
 }

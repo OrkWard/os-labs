@@ -1,6 +1,7 @@
 #include "types.h"
 
-#define NR_TASKS (1 + 3) // 用于控制 最大线程数量 （idle 线程 + 31 内核线程）
+#define NR_TASKS (1 + 3) // 初始化进程数量多
+#define MAX_TASKS 16     // 最大进程数量
 
 #define TASK_RUNNING 0 // 为了简化实验, 所有的线程都只有一种状态
 

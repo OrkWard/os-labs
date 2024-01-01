@@ -15,9 +15,9 @@ extern uint64 swapper_pg_dir[512] __attribute__((__aligned__(0x1000)));
 extern uint64 _sramdisk[];
 extern uint64 _eramdisk[];
 
-struct task_struct *idle;           // idle process
-struct task_struct *current;        // 指向当前运行线程的 `task_struct`
-struct task_struct *task[NR_TASKS]; // 线程数组, 所有的线程都保存在此
+struct task_struct *idle;    // idle process
+struct task_struct *current; // 指向当前运行线程的 `task_struct`
+struct task_struct *task[MAX_TASKS]; // 线程数组, 所有的线程都保存在此
 
 /**
  * new content for unit test of 2023 OS lab2
@@ -57,8 +57,8 @@ void task_init() {
     test_init(NR_TASKS);
 
     // 初始化 idle 进程
-    uint64 page_bottom = kalloc();
-    idle = (void *)page_bottom;
+    uint64 task_page = kalloc();
+    idle = (void *)task_page;
 
     idle->state = TASK_RUNNING;
     idle->counter = 0;
@@ -73,15 +73,15 @@ void task_init() {
     // 初始化其他线程
     int i;
     for (i = 1; i < NR_TASKS; ++i) {
-        page_bottom = kalloc();
-        task[i] = (void *)page_bottom;
+        task_page = kalloc();
+        task[i] = (void *)task_page;
         task[i]->pid = i;
         task[i]->state = TASK_RUNNING;
         task[i]->counter = task_test_counter[i];
         task[i]->priority = task_test_priority[i];
         // ra 初始化为 __dummy 地址
         task[i]->thread.ra = (uint64)&__dummy;
-        task[i]->thread.sp = page_bottom + PGSIZE;
+        task[i]->thread.sp = task_page + PGSIZE;
         // bit 8: SPP, bit 5: SPIE, bit 18: SUM
         task[i]->thread.sstatus = 1 << 5 | 1 << 18;
 
@@ -91,6 +91,9 @@ void task_init() {
         memcpy(task[i]->pgtbl, swapper_pg_dir, PGSIZE);
 
         load_elf(task[i]);
+    }
+    for (; i < MAX_TASKS; ++i) {
+        task[i] = NULL;
     }
 
     printk("...proc_init done!\n");

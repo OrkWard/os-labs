@@ -40,7 +40,9 @@ SWITCH:
     mv a1, t0 # spec
     mv a2, sp # regs
     jal trap_handler
-
+    
+    .globl __ret_from_fork
+__ret_from_fork:
     # 3. restore sepc and 32 registers (x2(sp) should be restore last) from stack
     ld t0, 144(sp)
     csrw sepc, t0 # restore sepc
