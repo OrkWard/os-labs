@@ -26,12 +26,12 @@ void syscall(struct pt_regs *regs) {
             uint64 write_count
                 = sys_write(regs->a0, (char *)regs->a1, regs->a2);
             regs->a0 = write_count;
-            break;
+            return;
         }
         case SYS_GETPID: {
             uint64 pid = sys_getpid();
             regs->a0 = pid;
-            break;
+            return;
         }
         case SYS_CLONE: {
             /*
@@ -65,7 +65,7 @@ void syscall(struct pt_regs *regs) {
                     task[i] = task_page;
                     // 父进程 fork 调用返回子进程 pid
                     regs->a0 = i;
-                    break;
+                    return;
                 }
             }
 
