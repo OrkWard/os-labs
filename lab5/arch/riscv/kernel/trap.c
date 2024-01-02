@@ -32,6 +32,7 @@ void syscall(struct pt_regs *regs) {
 }
 
 void do_page_fault(struct pt_regs *regs) {
+    // 找到对应 vma
     struct vm_area_struct *vma = find_vma(current, regs->stval);
 
     if (!vma) {
@@ -43,13 +44,17 @@ void do_page_fault(struct pt_regs *regs) {
             ;
     }
 
+    // 所需内存大小
     int64_t sz = vma->vm_end - vma->vm_start;
-    /* 页偏移 */
+    // 页偏移
     int64_t offset = vma->vm_start - PGROUNDDOWN(vma->vm_start);
+    // 分配内存
     int64_t addr = alloc_pages(PGROUNDUP(sz + offset) / PGSIZE);
     if (vma->vm_flags & VM_ANONYM) {
+        // 匿名 vma
         memset((void *)addr + offset, '0', sz);
     } else {
+        // 加载用户程序进内存
         memcpy(
             (void *)(addr + offset),
             (void *)(vma->vm_content_offset_in_file + vma->file_offset_on_disk),
@@ -69,7 +74,7 @@ void trap_handler(unsigned long scause, unsigned long sepc,
         // is interrupt
         switch (scause << 1 >> 1) {
             case 5:
-                printk("[S-mode] Supervisor Timer Interrupt\n");
+                // printk("[S-mode] Supervisor Timer Interrupt\n");
                 clock_set_next_event();
 
                 // 切换进程
@@ -85,7 +90,7 @@ void trap_handler(unsigned long scause, unsigned long sepc,
     } else {
         switch (scause << 1 >> 1) {
             case 8:
-                printk("[S-mode] User Environment Call\n");
+                // printk("[S-mode] User Environment Call\n");
                 syscall(regs);
                 regs->sepc += 4;
                 break;
@@ -97,10 +102,14 @@ void trap_handler(unsigned long scause, unsigned long sepc,
                 break;
             case 13:
                 printk("[S-mode] Load Page Fault\n");
+                printk("stval: %lx, ", regs->stval);
+                printk("sepc: %lx\n", regs->sepc);
                 do_page_fault(regs);
                 break;
             case 15:
                 printk("[S-mode] Store Page Fault Fault\n");
+                printk("stval: %lx, ", regs->stval);
+                printk("sepc: %lx\n", regs->sepc);
                 do_page_fault(regs);
                 break;
             default:
