@@ -48,6 +48,10 @@
 
 第一次调度 2-3-1；第二次调度 3-2-1（priority 有改动，为方便起见）
 
+`Instruction Page Fault` 时 scause 为 12，`Store Page Fault` 时 scause 为 15（见上图）
+
+共发生 6 次 Page Fault
+
 ![image-20240102160804844](/home/orks/Repos/os-labs/reports/assets/image-20240102160804844.png)
 
 ### 思考题
@@ -61,3 +65,7 @@
 2. 这个域并不占用内存，它起到的作用类似一个结构体内部的 symbol。`&vma_cnt + sizeof(vma_cnt)` 也能起到一样的效果。
 
    可以换，仍然能找到这个结构体的末端地址，但这样就没有添加这个 symbol 的意义了。
+
+### 讨论心得
+
+理解了 Page Fault 在做什么以后本实验难度不大，毕竟完全没有涉及内存/硬盘间的换页问题，只是做了基本的处理，以至于也没什么可说的，整个实验就是置后了创建映射的时机。除了查了下 size_in_file 的用途外，还翻了下手册找 scause 各种值的含意，此外本实验没有其他需要额外查资料的问题了。
