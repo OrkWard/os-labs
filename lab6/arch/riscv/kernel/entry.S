@@ -10,7 +10,7 @@ _traps:
 
 SWITCH:
     # 1. save 32 registers and sepc to stack
-    addi sp, sp, -200
+    addi sp, sp, -400
     sd ra, 0(sp)
     sd gp, 8(sp)
     sd tp, 16(sp)
@@ -35,18 +35,35 @@ SWITCH:
     csrr t0, stval
     sd t0, 152(sp)
 
+    # for fork
+    csrr t0, sscratch
+    sd t0, 160(sp)
+    sd s0, 168(sp)
+    sd s1, 176(sp)
+    sd s2, 184(sp)
+    sd s3, 192(sp)
+    sd s4, 200(sp)
+    sd s5, 208(sp)
+    sd s6, 216(sp)
+    sd s7, 224(sp)
+    sd s8, 232(sp)
+    sd s9, 240(sp)
+    sd s10, 248(sp)
+    sd s11, 256(sp)
+    sd sp, 264(sp)
+
     # 2. call trap_handler
     csrr a0, scause
     mv a1, t0 # spec
     mv a2, sp # regs
     jal trap_handler
     
-    .globl __ret_from_fork
-__ret_from_fork:
     # 3. restore sepc and 32 registers (x2(sp) should be restore last) from stack
     ld t0, 144(sp)
     csrw sepc, t0 # restore sepc
 
+    .globl __ret_from_fork
+__ret_from_fork:
     ld ra, 0(sp)
     ld gp, 8(sp)
     ld tp, 16(sp)
@@ -66,7 +83,7 @@ __ret_from_fork:
     ld a6, 128(sp)
     ld a7, 136(sp)
 
-    addi sp, sp, 200
+    addi sp, sp, 400
 
     # 4. return from trap
     csrrw sp, sscratch, sp

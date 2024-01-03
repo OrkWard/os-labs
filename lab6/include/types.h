@@ -3,4 +3,8 @@
 
 typedef unsigned long uint64;
 
+typedef char bool;
+#define true 1
+#define false 0
+
 #endif

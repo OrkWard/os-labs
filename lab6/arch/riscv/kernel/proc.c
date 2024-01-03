@@ -126,6 +126,8 @@ void switch_to(struct task_struct *next) {
         --next->counter;
 
         struct task_struct *prev = current;
+        printk("[S-mode] Switch to task %d, remaining time %d\n", next->pid,
+               next->counter);
         current = next;
         __switch_to(prev, next);
     }
@@ -169,8 +171,9 @@ void schedule() {
 #else
     int max_task_id = 0;
     int max_counter = -1;
-    for (i = 1; i < NR_TASKS; ++i) {
-        if (task[i]->counter && (int)(task[i]->counter) >= max_counter) {
+    for (i = 1; i < MAX_TASKS; ++i) {
+        if (task[i] && task[i]->counter
+            && (int)(task[i]->counter) >= max_counter) {
             max_counter = task[i]->counter;
             max_task_id = i;
         }
@@ -180,11 +183,13 @@ void schedule() {
     if (max_task_id) {
         switch_to(task[max_task_id]);
     } else {
-        for (i = 1; i < NR_TASKS; ++i) {
+        for (i = 1; i < MAX_TASKS; ++i) {
             // 优先级赋值
             // linux 0.11 的实现为同时考虑 counter 和 prioriy
             // 由于 couter 此处必为零，因此不必考虑
-            task[i]->counter = task[i]->priority;
+            if (task[i]) {
+                task[i]->counter = task[i]->priority;
+            }
         }
         schedule();
     }
@@ -200,7 +205,8 @@ void do_mmap(struct task_struct *task, uint64 addr, uint64 length, uint64 flags,
     vma->vm_flags = flags;
     vma->file_offset_on_disk = (uint64)_sramdisk;
     vma->vm_content_offset_in_file = vm_content_offset_in_file;
-    vma->vm_content_size_in_file = vm_content_offset_in_file;
+    vma->vm_content_size_in_file = vm_content_size_in_file;
+    vma->mapped = false;
 }
 
 struct vm_area_struct *find_vma(struct task_struct *task, uint64_t addr) {
