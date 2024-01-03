@@ -57,7 +57,6 @@ void syscall(struct pt_regs *regs) {
                 = (void *)((long)regs + (long)task_page - (long)task[pid]);
             // 子进程 fork 返回值 0
             child_regs->a0 = 0;
-            child_regs->ra = regs->ra;
 
             // 复制内核页表
             task_page->pgtbl = (uint64 *)kalloc();
