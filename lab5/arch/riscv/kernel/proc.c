@@ -39,6 +39,7 @@ void load_elf(struct task_struct *user_task) {
         Elf64_Phdr *phdr = (Elf64_Phdr *)(_sphdr + sizeof(Elf64_Phdr) * i);
         if (phdr->p_type == PT_LOAD) {
             // 创建 vma
+            printk("[!!!] mem: %d, file: %d\n", phdr->p_memsz, phdr->p_filesz);
             do_mmap(user_task, phdr->p_vaddr, phdr->p_memsz, phdr->p_flags << 1,
                     phdr->p_offset, phdr->p_filesz);
         }
@@ -199,7 +200,7 @@ void do_mmap(struct task_struct *task, uint64 addr, uint64 length, uint64 flags,
     vma->vm_flags = flags;
     vma->file_offset_on_disk = (uint64)_sramdisk;
     vma->vm_content_offset_in_file = vm_content_offset_in_file;
-    vma->vm_content_size_in_file = vm_content_offset_in_file;
+    vma->vm_content_size_in_file = vm_content_size_in_file;
 }
 
 struct vm_area_struct *find_vma(struct task_struct *task, uint64_t addr) {
