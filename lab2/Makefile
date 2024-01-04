@@ -12,14 +12,14 @@ CF = -march=$(ISA) -mabi=$(ABI) -mcmodel=medany -fno-builtin -ffunction-sections
 CFLAG = ${CF} ${INCLUDE} -DPRIORITY
 
 .PHONY:all run debug clean
-all:
+all: clean
 	${MAKE} -C lib all
 	${MAKE} -C test all
 	${MAKE} -C init all
 	${MAKE} -C arch/riscv all
 	@echo -e '\n'Build Finished OK
 
-TEST:
+TEST: clean
 	${MAKE} -C lib all
 	${MAKE} -C test test
 	${MAKE} -C init all

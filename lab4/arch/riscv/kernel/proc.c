@@ -155,6 +155,8 @@ void switch_to(struct task_struct *next) {
 
         struct task_struct *prev = current;
         current = next;
+        printk("[S-mode] Switch to task %d, remaining time %d\n", next->pid,
+               next->counter);
         __switch_to(prev, next);
     }
 }

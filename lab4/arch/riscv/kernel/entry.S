@@ -32,6 +32,8 @@ SWITCH:
 
     csrr t0, sepc
     sd t0, 144(sp) # save spec
+    csrr t0, stval
+    sd t0, 152(sp)
 
     # 2. call trap_handler
     csrr a0, scause
@@ -68,6 +70,8 @@ SWITCH:
     csrrw sp, sscratch, sp
     bne sp, x0, RETURN
     csrrw sp, sscratch, sp
+
+RETURN:
     sret
 
     # return to function dummy

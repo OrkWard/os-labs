@@ -7,7 +7,7 @@
 struct pt_regs {
     uint64 ra, gp, tp, t0, t1, t2, t3, t4, t5, t6;
     uint64 a0, a1, a2, a3, a4, a5, a6, a7;
-    uint64 sepc;
+    uint64 sepc, stval;
 };
 
 void syscall(struct pt_regs *regs) {
@@ -35,20 +35,32 @@ void trap_handler(unsigned long scause, unsigned long sepc,
         // is interrupt
         switch (scause << 1 >> 1) {
             case 5:
-                printk("[S-mode] Supervisor Timer Interrupt\n");
+                // printk("[S-mode] Supervisor Timer Interrupt\n");
                 clock_set_next_event();
 
                 // 切换进程
                 do_timer();
                 break;
+            default:
+                printk("[S-mode] !Unhandled Interrupt\n");
+                printk("  scause: %d, sepc: %lx, stval: %lx\n", scause, sepc,
+                       regs->stval);
+                while (1)
+                    ;
         }
     } else {
         switch (scause << 1 >> 1) {
             case 8:
-                printk("[S-mode] User Environment Call\n");
+                // printk("[S-mode] User Environment Call\n");
                 syscall(regs);
                 regs->sepc += 4;
                 break;
+            default:
+                printk("[S-mode] !Unhandled Exception\n");
+                printk("  scause: %d, sepc: %lx, stval: %lx\n", scause, sepc,
+                       regs->stval);
+                while (1)
+                    ;
         }
     }
 
