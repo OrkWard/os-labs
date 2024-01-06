@@ -4,7 +4,7 @@
 
 首先增加 vma 计数，随后找到新增的 vma 地址；随后填入相应的信息即可：
 
-![image-20240103213443766](/home/orks/Repos/os-labs/reports/assets/image-20240103213443766.png)
+![image-20240103213443766](./assets/image-20240103213443766.png)
 
 由于 `task_struct` 实际分配的大小是一整页，所以此处可以不用开辟新的内存，直接计算指针位置即可；同时，由于 vmas 成员位于最后一项，也不需要额外的偏移。
 
@@ -14,7 +14,7 @@
 
 遍历 vma 检查边界即可，不存在时返回 0 指针
 
-![image-20240102150202911](/home/orks/Repos/os-labs/reports/assets/image-20240102150202911.png)
+![image-20240102150202911](./assets/image-20240102150202911.png)
 
 ### 实现 `do_page_fault`
 
@@ -22,11 +22,11 @@
 
 首先根据发生 page fault 的地址找到 vma：
 
-![image-20240102152023284](/home/orks/Repos/os-labs/reports/assets/image-20240102152023284.png)
+![image-20240102152023284](./assets/image-20240102152023284.png)
 
 随后根据 vma 是否为匿名（即是否有对应文件）进行映射：
 
-![image-20240102152043515](/home/orks/Repos/os-labs/reports/assets/image-20240102152043515.png)
+![image-20240102152043515](./assets/image-20240102152043515.png)
 
 跟前面的实验一样，由于 vm_start 不一定页对齐，size 需要把 vm_start 的页内偏移考虑在内。原因是 `alloc_pages` 从页首开始分配内存。
 
@@ -36,13 +36,13 @@
 
 增加 12、13、15 号 exception 的处理。由于具体需要的权限已经在 `vma->vm_flags` 中，这里统一交给 `do_page_default` 函数处理即可。
 
-![image-20240102152519477](/home/orks/Repos/os-labs/reports/assets/image-20240102152519477.png)
+![image-20240102152519477](./assets/image-20240102152519477.png)
 
 ### 修改 `task_init`
 
 删除原先分配内存、复制文件、创建映射的部分，改为调用一次 `do_mmap`
 
-![image-20240102153458567](/home/orks/Repos/os-labs/reports/assets/image-20240102153458567.png)
+![image-20240102153458567](./assets/image-20240102153458567.png)
 
 ### 结果
 
@@ -52,7 +52,7 @@
 
 共发生 6 次 Page Fault
 
-![image-20240102160804844](/home/orks/Repos/os-labs/reports/assets/image-20240102160804844.png)
+![image-20240102160804844](./assets/image-20240102160804844.png)
 
 ### 思考题
 
