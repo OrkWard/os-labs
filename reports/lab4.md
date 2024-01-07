@@ -59,3 +59,14 @@ syscall 处理函数：
 3. 因为每个进程的页表不同。想知道物理内存需要一级级读页表，如果**内核让用户可读这段内存**或者提供系统调用自然可以知道。当然这不属于“常规方法”。用户内存段和内核内存段说到底也只是 convention，不是硬限制。
 
    > 实际上我不知道这里的“常规方法”是什么意思。如果想通过读某个 csr 来知道真实地址自然是没有。
+
+### 讨论心得
+
+由于我之前就写过 elf 的 loader 这里并没有遇到什么困难。整个实验的思路基本上就是复制一段程序进内存，然后让它扮演之前 dummy 的角色，只是权限上有些差别。
+
+另外强烈推荐 cloudflare 去年 11 月的 4 篇文章，从一个真实情景入手，对 elf 的加载、执行过程讲得极为清晰，同时对 gcc、readelf、objdump 等工具的使用也让人深受启发：
+
+https://blog.cloudflare.com/how-to-execute-an-object-file-part-1/  
+https://blog.cloudflare.com/how-to-execute-an-object-file-part-2/  
+https://blog.cloudflare.com/how-to-execute-an-object-file-part-3/  
+https://blog.cloudflare.com/how-to-execute-an-object-file-part-4/
